@@ -1,0 +1,29 @@
+# Multi-stage Dockerfile for FoodDelivery.Consumers
+# Build stage with SDK
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy project files and restore
+COPY src/FoodDelivery.Consumers/FoodDelivery.Consumers.csproj FoodDelivery.Consumers/
+COPY src/FoodDelivery.Shared/FoodDelivery.Shared.csproj FoodDelivery.Shared/
+
+RUN dotnet restore FoodDelivery.Consumers/FoodDelivery.Consumers.csproj
+
+# Copy everything and publish
+COPY . .
+RUN dotnet publish src/FoodDelivery.Consumers/FoodDelivery.Consumers.csproj \
+    -c Release -o /app/publish --no-restore
+
+# Runtime stage with ASP.NET Core runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+# No HTTP ports — consumers only make outbound connections
+# They connect TO RabbitMQ (AMQP), Kafka, and SQL Server
+
+# Copy published app
+COPY --from=build /app/publish .
+
+# Run as non-root user
+USER app
+ENTRYPOINT ["dotnet", "FoodDelivery.Consumers.dll"]

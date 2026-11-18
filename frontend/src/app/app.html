@@ -1,0 +1,23 @@
+<nav>
+  <a routerLink="/" class="brand">Angular Product Manager</a>
+  <div class="nav-links">
+    <a routerLink="/users">Users</a>
+    <a routerLink="/products">Products</a>
+    <ng-container *ngIf="isLoggedIn; else loggedOut">
+      <span class="nav-user">{{ username }}</span>
+      <a routerLink="/" (click)="logout()">Logout</a>
+    </ng-container>
+    <ng-template #loggedOut>
+      <a routerLink="/login">Login</a>
+      <a routerLink="/register">Register</a>
+    </ng-template>
+  </div>
+</nav>
+
+<main>
+  <router-outlet />
+</main>
+
+<footer>
+  <p>Angular 22 + ASP.NET Web API Demo</p>
+</footer>

@@ -1,0 +1,7 @@
+module.exports = {
+  '/api': {
+    target: 'http://localhost:5104',
+    secure: false,
+    changeOrigin: true,
+  }
+};

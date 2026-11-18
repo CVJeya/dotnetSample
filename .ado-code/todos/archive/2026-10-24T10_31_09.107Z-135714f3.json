@@ -1,0 +1,198 @@
+[
+  {
+    "archivedAt": "2026-10-25T10:34:43.622Z",
+    "goal": {
+      "text": "Add a dedicated SQL question-and-answer chapter (05D) for the Microsoft Fullstack Technical Lead interview, wired into the Learning set",
+      "source": "ai",
+      "setAt": "2026-10-24T11:47:36.181Z"
+    },
+    "items": [
+      {
+        "id": "it-89f6ba3208",
+        "content": "Audit existing SQL coverage in 05B §7, 05C §9, 05, 06 to avoid duplication",
+        "status": "completed",
+        "activeForm": "Auditing existing SQL coverage"
+      },
+      {
+        "id": "it-b946d0a19d",
+        "content": "Write 05D part 1 — scoring model, answer templates, SQL fundamentals Q&A",
+        "status": "completed",
+        "activeForm": "Writing 05D fundamentals section"
+      },
+      {
+        "id": "it-45cb689cd2",
+        "content": "Write 05D part 2 — indexing/execution plans, transactions & concurrency, schema design",
+        "status": "completed",
+        "activeForm": "Writing 05D indexing and concurrency sections"
+      },
+      {
+        "id": "it-988bf75c2d",
+        "content": "Write 05D part 3 — EF Core ↔ SQL, troubleshooting playbook, security, scaling, drills, self-test",
+        "status": "completed",
+        "activeForm": "Writing 05D EF Core, security and scaling sections"
+      },
+      {
+        "id": "it-a8b6a3f0c6",
+        "content": "Update 00-START-HERE.md index/study plans and cross-link 05B, 05C, 05, 06",
+        "status": "completed",
+        "activeForm": "Updating index and cross-links"
+      }
+    ]
+  },
+  {
+    "archivedAt": "2026-10-24T11:47:36.179Z",
+    "goal": {
+      "text": "Add the missing C#/OOP/DS&A/coding-interview material to the Learning set for the Microsoft Fullstack Technical Lead role",
+      "source": "ai",
+      "setAt": "2026-10-24T11:25:30.489Z"
+    },
+    "items": [
+      {
+        "id": "it-a89f02b839",
+        "content": "Audit Learning/ for C#, OOP, DS&A and coding-question coverage",
+        "status": "completed",
+        "activeForm": "Auditing Learning/ coverage"
+      },
+      {
+        "id": "it-b96d6ad19a",
+        "content": "Write 05A — C# language & OOP fundamentals (75 KB)",
+        "status": "completed",
+        "activeForm": "Writing 05A C# & OOP fundamentals"
+      },
+      {
+        "id": "it-3eb122209f",
+        "content": "Write 05B — Data structures, Big-O, algorithm patterns, SQL (33 KB)",
+        "status": "completed",
+        "activeForm": "Writing 05B data structures & algorithms"
+      },
+      {
+        "id": "it-652b2b9c3b",
+        "content": "Write 05C — Coding question bank, 36 problems + live-coding playbook (49 KB)",
+        "status": "completed",
+        "activeForm": "Writing 05C coding question bank"
+      },
+      {
+        "id": "it-190c7d4c34",
+        "content": "Update 00-START-HERE.md index/study plan and cross-link 06, 07, 13",
+        "status": "completed",
+        "activeForm": "Updating index and cross-links"
+      }
+    ]
+  },
+  {
+    "archivedAt": "2026-10-24T11:25:30.486Z",
+    "goal": {
+      "text": "Extend the Learning/ interview-training set with technical-lead materials (people leadership, architecture decisions, delivery/engineering excellence, Azure platform, lead interview playbook, first 90 days) for a Microsoft Fullstack Technical Lead role",
+      "source": "ai",
+      "setAt": "2026-10-24T11:14:07.660Z"
+    },
+    "items": [
+      {
+        "id": "it-0aaeaaaa3a",
+        "content": "Audit existing Learning/ chapters to find lead-level gaps",
+        "status": "completed",
+        "activeForm": "Auditing existing Learning/ chapters"
+      },
+      {
+        "id": "it-0711069863",
+        "content": "Write 08 — Lead role & team leadership (team of 3, 1:1s, feedback, delegation, code review, hiring, conflict, estimation)",
+        "status": "completed",
+        "activeForm": "Writing 08 lead role & team leadership"
+      },
+      {
+        "id": "it-0d5e81dacd",
+        "content": "Write 09 — Architecture decisions & technical ownership (ADR, C4, modular monolith, strangler migration, FE governance, API/data/caching)",
+        "status": "completed",
+        "activeForm": "Writing 09 architecture decisions"
+      },
+      {
+        "id": "it-01a0f71f18",
+        "content": "Write 10 — Delivery & engineering excellence (standards as code, trunk-based, pipelines, testing strategy, DORA, debt, incidents, SLOs)",
+        "status": "completed",
+        "activeForm": "Writing 10 delivery & engineering excellence"
+      },
+      {
+        "id": "it-16f1244a9f",
+        "content": "Write 11 — Azure platform for leads (hosting choices, Key Vault/identity, App Insights, Service Bus, Entra ID, cost)",
+        "status": "completed",
+        "activeForm": "Writing 11 Azure platform for leads"
+      },
+      {
+        "id": "it-f456e382a8",
+        "content": "Write 12 — Lead interview playbook (loop format, behavioural bank with model answers, case-study round, negotiation)",
+        "status": "completed",
+        "activeForm": "Writing 12 lead interview playbook"
+      },
+      {
+        "id": "it-c8cdce00a7",
+        "content": "Write 13 — First 90 days plan + lead readiness scorecard",
+        "status": "completed",
+        "activeForm": "Writing 13 first 90 days plan"
+      },
+      {
+        "id": "it-a4e2ad9815",
+        "content": "Update 00-START-HERE.md index, positioning and study plan for the lead role",
+        "status": "completed",
+        "activeForm": "Updating 00-START-HERE index and plan"
+      }
+    ]
+  },
+  {
+    "archivedAt": "2026-10-24T11:14:07.657Z",
+    "goal": {
+      "text": "Create a senior-role interview-ready training document covering Angular 22, React 19, and ASP.NET Core, grounded in the repo's own code",
+      "source": "ai",
+      "setAt": "2026-10-24T11:01:12.887Z"
+    },
+    "items": [
+      {
+        "id": "it-f8c1e55b95",
+        "content": "Survey repo code (Angular 22 app, React 19 app, .NET APIs) for grounding",
+        "status": "completed",
+        "activeForm": "Surveying repo code"
+      },
+      {
+        "id": "it-54d30a9fdd",
+        "content": "Write the training index: positioning strategy, repo map, 6-week plan",
+        "status": "completed",
+        "activeForm": "Writing the training index"
+      },
+      {
+        "id": "it-9bec35e5fb",
+        "content": "Write Angular 18+ chapters grounded in frontend/ code",
+        "status": "completed",
+        "activeForm": "Writing Angular chapters"
+      },
+      {
+        "id": "it-9f06055ddf",
+        "content": "Write React 19 chapters grounded in ReactDotNetDemo/ code",
+        "status": "completed",
+        "activeForm": "Writing React 19 chapters"
+      },
+      {
+        "id": "it-c079ea7034",
+        "content": "Write ASP.NET Core senior chapter grounded in backend/ + DeliverFoodApp/",
+        "status": "completed",
+        "activeForm": "Writing ASP.NET Core senior chapter"
+      },
+      {
+        "id": "it-4653ad9e8d",
+        "content": "Write the interview question bank with model answers + STAR stories",
+        "status": "completed",
+        "activeForm": "Writing the interview question bank"
+      },
+      {
+        "id": "it-9258dd0379",
+        "content": "Write the cheatsheets chapter",
+        "status": "completed",
+        "activeForm": "Writing cheatsheets"
+      },
+      {
+        "id": "it-2d01b64643",
+        "content": "Verify files written and summarize",
+        "status": "completed",
+        "activeForm": "Verifying and summarizing"
+      }
+    ]
+  }
+]

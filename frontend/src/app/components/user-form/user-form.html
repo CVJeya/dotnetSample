@@ -1,0 +1,59 @@
+<div class="container">
+  <h1>{{ isEditMode ? 'Edit User' : 'Add New User' }}</h1>
+
+  @if (loading) {
+    <div class="alert alert-info">Loading user data...</div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  @if (!loading) {
+    <form (ngSubmit)="submit()" #userForm="ngForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input
+          id="name"
+          name="name"
+          [(ngModel)]="name"
+          #nameModel="ngModel"
+          required
+          class="form-control"
+          placeholder="Enter name"
+        />
+        @if (nameModel.invalid && nameModel.touched) {
+          <span class="error-text">Name is required</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          #emailModel="ngModel"
+          required
+          email
+          class="form-control"
+          placeholder="Enter email"
+        />
+        @if (emailModel.invalid && emailModel.touched) {
+          <span class="error-text">
+            @if (emailModel.errors?.['required']) { Email is required }
+            @if (emailModel.errors?.['email']) { Invalid email format }
+          </span>
+        }
+      </div>
+
+      <div class="actions">
+        <button type="submit" [disabled]="saving || userForm.invalid" class="btn-primary">
+          {{ saving ? 'Saving...' : (isEditMode ? 'Update' : 'Create') }}
+        </button>
+        <a routerLink="/" class="btn-cancel">Cancel</a>
+      </div>
+    </form>
+  }
+</div>

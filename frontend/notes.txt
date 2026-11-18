@@ -1,0 +1,19 @@
+Before Angular execution run in Command prompt
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Set-ExecutionPolicy RemoteSigned 
+After Angular execution run
+
+Set-ExecutionPolicy Restricted
+
+To run Angular project :
+cd E:\Documents\Learnings\AngularDotnetDemo\frontend
+ng serve
+
+To run React project :
+cd E:\Documents\Learnings\AngularDotnetDemo\ReactDotNetDemo
+npm run dev
+
+Dotnet :
+cd E:\Documents\Learnings\AngularDotnetDemo\backend\AngularDotnetDemo.Api
+dotnet run
