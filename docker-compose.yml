@@ -1,0 +1,41 @@
+services:
+  # ── ASP.NET Web API Backend ──
+  backend:
+    build:
+      context: ./backend/AngularDotnetDemo.Api
+    container_name: dotnet-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - app-network
+
+  # ── Angular Frontend ──
+  angular-app:
+    build:
+      context: ./frontend
+    container_name: angular-frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # ── React Frontend ──
+  react-app:
+    build:
+      context: ./ReactDotNetDemo
+    container_name: react-frontend
+    ports:
+      - "8082:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
