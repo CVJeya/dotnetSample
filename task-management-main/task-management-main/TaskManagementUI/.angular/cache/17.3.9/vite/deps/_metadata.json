@@ -1,0 +1,82 @@
+{
+  "hash": "fb40298b",
+  "configHash": "9df1905f",
+  "lockfileHash": "64b13f8c",
+  "browserHash": "d5af23aa",
+  "optimized": {
+    "@angular/common": {
+      "src": "../../../../../node_modules/@angular/common/fesm2022/common.mjs",
+      "file": "@angular_common.js",
+      "fileHash": "bfdb4cf9",
+      "needsInterop": false
+    },
+    "@angular/common/http": {
+      "src": "../../../../../node_modules/@angular/common/fesm2022/http.mjs",
+      "file": "@angular_common_http.js",
+      "fileHash": "09edd19b",
+      "needsInterop": false
+    },
+    "@angular/core": {
+      "src": "../../../../../node_modules/@angular/core/fesm2022/core.mjs",
+      "file": "@angular_core.js",
+      "fileHash": "ad671f07",
+      "needsInterop": false
+    },
+    "@angular/forms": {
+      "src": "../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
+      "file": "@angular_forms.js",
+      "fileHash": "0d6164a8",
+      "needsInterop": false
+    },
+    "@angular/platform-browser": {
+      "src": "../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
+      "file": "@angular_platform-browser.js",
+      "fileHash": "c218c912",
+      "needsInterop": false
+    },
+    "@angular/platform-browser/animations": {
+      "src": "../../../../../node_modules/@angular/platform-browser/fesm2022/animations.mjs",
+      "file": "@angular_platform-browser_animations.js",
+      "fileHash": "79298909",
+      "needsInterop": false
+    },
+    "@angular/router": {
+      "src": "../../../../../node_modules/@angular/router/fesm2022/router.mjs",
+      "file": "@angular_router.js",
+      "fileHash": "c6043f31",
+      "needsInterop": false
+    },
+    "ngx-toastr": {
+      "src": "../../../../../node_modules/ngx-toastr/fesm2022/ngx-toastr.mjs",
+      "file": "ngx-toastr.js",
+      "fileHash": "91f11fd9",
+      "needsInterop": false
+    },
+    "rxjs": {
+      "src": "../../../../../node_modules/rxjs/dist/esm5/index.js",
+      "file": "rxjs.js",
+      "fileHash": "6ec26884",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-WGLP3CZE": {
+      "file": "chunk-WGLP3CZE.js"
+    },
+    "chunk-6LSDCE3C": {
+      "file": "chunk-6LSDCE3C.js"
+    },
+    "chunk-A6GH3JSM": {
+      "file": "chunk-A6GH3JSM.js"
+    },
+    "chunk-VWSPVYE7": {
+      "file": "chunk-VWSPVYE7.js"
+    },
+    "chunk-LQYATKAB": {
+      "file": "chunk-LQYATKAB.js"
+    },
+    "chunk-S7YXB36V": {
+      "file": "chunk-S7YXB36V.js"
+    }
+  }
+}

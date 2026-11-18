@@ -1,0 +1,92 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using TaskManagement.API.Data;
+
+#nullable disable
+
+namespace TaskManagement.API.Data.Migrations;
+
+// Use fully-qualified attribute names — `[DbContext]` would bind to the EF DbContext class, not DbContextAttribute (CS0616).
+[Microsoft.EntityFrameworkCore.Infrastructure.DbContextAttribute(typeof(ApplicationDbContext))]
+[Migration("20260507120000_InitialCreate")]
+public partial class InitialCreate
+{
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
+    {
+#pragma warning disable 612, 618
+        modelBuilder
+            .HasAnnotation("ProductVersion", "8.0.11")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+        modelBuilder.Entity("TaskManagement.API.Models.TaskEntity", b =>
+        {
+            b.Property<int>("Id")
+                .ValueGeneratedOnAdd()
+                .HasColumnType("int");
+
+            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+            b.Property<string>("CreatedBy")
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasMaxLength(100)
+                .HasColumnType("nvarchar(100)")
+                .HasDefaultValue("System");
+
+            b.Property<DateTime>("CreatedOn")
+                .ValueGeneratedOnAdd()
+                .HasColumnType("datetime2")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            b.Property<string>("LastUpdatedBy")
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasMaxLength(100)
+                .HasColumnType("nvarchar(100)")
+                .HasDefaultValue("System");
+
+            b.Property<DateTime>("LastUpdatedOn")
+                .ValueGeneratedOnAdd()
+                .HasColumnType("datetime2")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            b.Property<string>("TaskDescription")
+                .HasMaxLength(2000)
+                .HasColumnType("nvarchar(2000)");
+
+            b.Property<DateTime>("TaskDueDate")
+                .HasColumnType("datetime2");
+
+            b.Property<string>("TaskRemarks")
+                .HasMaxLength(1000)
+                .HasColumnType("nvarchar(1000)");
+
+            b.Property<string>("TaskStatus")
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasMaxLength(50)
+                .HasColumnType("nvarchar(50)")
+                .HasDefaultValue("Pending");
+
+            b.Property<string>("TaskTitle")
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasColumnType("nvarchar(200)");
+
+            b.HasKey("Id");
+
+            b.HasIndex("TaskTitle")
+                .HasDatabaseName("IX_Tasks_TaskTitle");
+
+            b.HasIndex("TaskStatus")
+                .HasDatabaseName("IX_Tasks_TaskStatus");
+
+            b.ToTable("Tasks");
+        });
+#pragma warning restore 612, 618
+    }
+}

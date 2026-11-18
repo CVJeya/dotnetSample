@@ -1,0 +1,49 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  backend:
+    name: .NET API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: TaskManagement.API
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (includes EF migrations)
+        run: dotnet build -c Release --no-restore
+
+  frontend:
+    name: Angular UI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: TaskManagementUI
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Build
+        run: npm run build

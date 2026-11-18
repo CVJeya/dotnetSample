@@ -1,0 +1,26 @@
+## Ignore Visual Studio / VS Code / Rider
+.vs/
+.idea/
+*.user
+*.suo
+
+## Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ist/
+[Tt]emp/
+
+## Node / Angular
+**/node_modules/
+npm-debug.log*
+yarn-error.log*
+
+## OS
+Thumbs.db
+Desktop.ini
+
+## Logs
+*.log
+
+## EF Core (optional local artifacts)
+*.dbmdl

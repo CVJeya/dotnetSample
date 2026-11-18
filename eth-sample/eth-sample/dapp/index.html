@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MessageBoard DApp</title>
+  <style>
+    :root { --bg:#0f1420; --card:#171e2e; --line:#2a3550; --text:#e6ebf5; --muted:#8c98b3; --accent:#6ea8fe; --ok:#4ade80; --err:#f87171; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:15px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--text); }
+    main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+    h1 { font-size:22px; margin:0 0 4px; }
+    p.sub { color:var(--muted); margin:0 0 20px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px; }
+    .card h2 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 12px; }
+    label { display:block; font-size:13px; color:var(--muted); margin:8px 0 4px; }
+    input { width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--line); background:#0f1626; color:var(--text); font:inherit; }
+    button { padding:9px 14px; border-radius:8px; border:0; background:var(--accent); color:#0b1220; font-weight:600; cursor:pointer; margin-top:10px; }
+    button.secondary { background:transparent; color:var(--accent); border:1px solid var(--line); }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .row > * { flex:1 1 200px; }
+    .kv { display:grid; grid-template-columns:150px 1fr; gap:6px 12px; word-break:break-all; }
+    .kv span:nth-child(odd) { color:var(--muted); }
+    .msg { font-size:20px; margin:4px 0 0; word-break:break-word; }
+    #status { min-height:22px; font-size:14px; }
+    .ok { color:var(--ok); } .err { color:var(--err); }
+    ul { list-style:none; padding:0; margin:0; }
+    li { padding:8px 0; border-top:1px solid var(--line); word-break:break-word; }
+    li:first-child { border-top:0; }
+    small { color:var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>MessageBoard DApp</h1>
+  <p class="sub">Browser front end for the sample Solidity contract. Talks to the chain through MetaMask (ethers v6).</p>
+
+  <div class="card">
+    <h2>Wallet</h2>
+    <div class="kv">
+      <span>Account</span><span id="account">not connected</span>
+      <span>Network</span><span id="network">-</span>
+      <span>Balance</span><span id="balance">-</span>
+    </div>
+    <button id="connectBtn">Connect MetaMask</button>
+    <button id="switchBtn" class="secondary">Switch to local Hardhat (31337)</button>
+  </div>
+
+  <div class="card">
+    <h2>Contract</h2>
+    <label for="addr">Contract address</label>
+    <input id="addr" placeholder="0x..." />
+    <button id="loadBtn" class="secondary">Load contract</button>
+    <div class="kv" style="margin-top:14px">
+      <span>Owner</span><span id="owner">-</span>
+      <span>Update count</span><span id="count">-</span>
+      <span>Contract balance</span><span id="cbal">-</span>
+    </div>
+    <label>Current message</label>
+    <p class="msg" id="message">-</p>
+  </div>
+
+  <div class="card">
+    <h2>Write (sends a transaction, MetaMask will ask to confirm)</h2>
+    <label for="newMsg">New message</label>
+    <input id="newMsg" maxlength="280" placeholder="Type a message" />
+    <button id="setBtn" disabled>Set message</button>
+
+    <div class="row" style="margin-top:14px">
+      <div>
+        <label for="depAmt">Deposit (ETH)</label>
+        <input id="depAmt" value="0.1" inputmode="decimal" />
+        <button id="depBtn" disabled>Deposit</button>
+      </div>
+      <div>
+        <label>Owner only</label>
+        <button id="wdBtn" class="secondary" disabled>Withdraw all</button>
+      </div>
+    </div>
+    <p id="status"></p>
+  </div>
+
+  <div class="card">
+    <h2>MessageUpdated events (live + last 2000 blocks)</h2>
+    <ul id="events"></ul>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+  // Human-readable ABI is enough for ethers; no compiled artifact needed.
+  const ABI = [
+    "function owner() view returns (address)",
+    "function getMessage() view returns (string)",
+    "function updateCount() view returns (uint256)",
+    "function contractBalance() view returns (uint256)",
+    "function setMessage(string newMessage)",
+    "function deposit() payable",
+    "function withdrawAll()",
+    "event MessageUpdated(address indexed author, string newMessage, uint256 updateCount)",
+    "error NotOwner()",
+    "error EmptyMessage()",
+    "error NothingToWithdraw()",
+    "error TransferFailed()"
+  ];
+
+  const LOCAL_CHAIN_HEX = "0x7a69"; // 31337
+  const $ = (id) => document.getElementById(id);
+
+  let provider, signer, account, contract, readContract, expectedChainId = null;
+
+  // textContent everywhere: on-chain strings are untrusted user input.
+  function setStatus(text, cls = "") { const s = $("status"); s.textContent = text; s.className = cls; }
+  const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
+
+  async function init() {
+    // contract.json is written by `npm run deploy:local`; fall back to the usual first Hardhat address.
+    let address = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    try {
+      const r = await fetch("contract.json", { cache: "no-store" });
+      if (r.ok) { const j = await r.json(); address = j.address; expectedChainId = j.chainId; }
+    } catch (_) { /* optional file */ }
+    $("addr").value = address;
+
+    if (!window.ethereum) { setStatus("MetaMask not found. Install the extension and reload.", "err"); return; }
+    window.ethereum.on?.("accountsChanged", () => location.reload());
+    window.ethereum.on?.("chainChanged", () => location.reload());
+  }
+
+  async function connect() {
+    try {
+      provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      account = await signer.getAddress();
+      const net = await provider.getNetwork();
+      $("account").textContent = account;
+      $("network").textContent = `chainId ${net.chainId}` + (expectedChainId && Number(net.chainId) !== expectedChainId ? `  (contract.json expects ${expectedChainId})` : "");
+      $("balance").textContent = ethers.formatEther(await provider.getBalance(account)) + " ETH";
+      setStatus("Wallet connected.", "ok");
+      await loadContract();
+    } catch (e) { setStatus(e.shortMessage || e.message, "err"); }
+  }
+
+  async function switchToLocal() {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: LOCAL_CHAIN_HEX }] });
+    } catch (e) {
+      if (e.code === 4902) { // chain not added yet
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: LOCAL_CHAIN_HEX, chainName: "Hardhat Local",
+            rpcUrls: ["http://127.0.0.1:8545"],
+            nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }
+          }]
+        });
+      } else { setStatus(e.message, "err"); }
+    }
+  }
+
+  async function loadContract() {
+    if (!provider) { setStatus("Connect the wallet first.", "err"); return; }
+    const address = $("addr").value.trim();
+    if (!ethers.isAddress(address)) { setStatus("Enter a valid contract address.", "err"); return; }
+
+    const code = await provider.getCode(address);
+    if (code === "0x") { setStatus("No contract at that address on this network. Wrong network or not deployed yet?", "err"); return; }
+
+    contract?.removeAllListeners?.();
+    contract = new ethers.Contract(address, ABI, signer);
+    await refresh();
+    ["setBtn", "depBtn", "wdBtn"].forEach((id) => ($(id).disabled = false));
+
+    await loadPastEvents();
+    contract.on("MessageUpdated", (author, msg, count, payload) => {
+      addEvent(author, msg, count, payload.log.blockNumber);
+      refresh();
+    });
+    setStatus("Contract loaded.", "ok");
+  }
+
+  async function refresh() {
+    const [owner, msg, count, bal] = await Promise.all([
+      contract.owner(), contract.getMessage(), contract.updateCount(), contract.contractBalance()
+    ]);
+    $("owner").textContent = owner;
+    $("message").textContent = msg;
+    $("count").textContent = count.toString();
+    $("cbal").textContent = ethers.formatEther(bal) + " ETH";
+    $("balance").textContent = ethers.formatEther(await provider.getBalance(account)) + " ETH";
+  }
+
+  function addEvent(author, msg, count, block) {
+    const li = document.createElement("li");
+    li.textContent = `#${count}  ${msg}  `;
+    const s = document.createElement("small");
+    s.textContent = `by ${short(author)} · block ${block}`;
+    li.appendChild(s);
+    $("events").prepend(li);
+  }
+
+  async function loadPastEvents() {
+    $("events").textContent = "";
+    const latest = await provider.getBlockNumber();
+    const logs = await contract.queryFilter(contract.filters.MessageUpdated(), Math.max(0, latest - 2000), latest);
+    logs.forEach((l) => addEvent(l.args.author, l.args.newMessage, l.args.updateCount, l.blockNumber));
+  }
+
+  // Wraps a write: shows progress, waits for mining, decodes custom errors into text.
+  async function send(label, fn) {
+    try {
+      setStatus(`${label}: confirm in MetaMask…`);
+      const tx = await fn();
+      setStatus(`${label}: submitted ${short(tx.hash)}, waiting for confirmation…`);
+      await tx.wait();
+      setStatus(`${label}: confirmed in tx ${short(tx.hash)}.`, "ok");
+      await refresh();
+    } catch (e) {
+      const name = e.revert?.name; // custom error name from the ABI
+      setStatus(`${label} failed: ${name || e.shortMessage || e.message}`, "err");
+    }
+  }
+
+  $("connectBtn").onclick = connect;
+  $("switchBtn").onclick = switchToLocal;
+  $("loadBtn").onclick = () => loadContract().catch((e) => setStatus(e.shortMessage || e.message, "err"));
+  $("setBtn").onclick = () => {
+    const v = $("newMsg").value.trim();
+    if (!v) return setStatus("Message cannot be empty.", "err");
+    send("Set message", () => contract.setMessage(v));
+  };
+  $("depBtn").onclick = () => {
+    let value;
+    try { value = ethers.parseEther($("depAmt").value.trim()); } catch { return setStatus("Invalid ETH amount.", "err"); }
+    send("Deposit", () => contract.deposit({ value }));
+  };
+  $("wdBtn").onclick = () => send("Withdraw", () => contract.withdrawAll());
+
+  init();
+</script>
+</body>
+</html>

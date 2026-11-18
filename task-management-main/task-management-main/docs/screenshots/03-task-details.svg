@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <rect width="960" height="540" fill="#f1f5f9"/>
+  <rect width="960" height="52" fill="#212529"/>
+  <text x="24" y="34" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="16">Task Management</text>
+  <text x="380" y="100" fill="#212529" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600">Task details</text>
+  <rect x="160" y="130" width="640" height="340" rx="8" fill="#fff" stroke="#dee2e6"/>
+  <text x="200" y="175" fill="#212529" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600">Sample task title</text>
+  <text x="200" y="210" fill="#6c757d" font-family="Segoe UI, Arial, sans-serif" font-size="14">Description  lorem ipsum dolor sit amet.</text>
+  <text x="200" y="250" fill="#495057" font-family="Segoe UI, Arial, sans-serif" font-size="14">Due date: 2026-05-15</text>
+  <rect x="200" y="268" width="96" height="26" rx="4" fill="#fff3cd"/>
+  <text x="212" y="286" fill="#664d03" font-family="Segoe UI, Arial, sans-serif" font-size="13">In progress</text>
+  <text x="200" y="320" fill="#495057" font-family="Segoe UI, Arial, sans-serif" font-size="14">Remarks  optional notes</text>
+  <line x1="200" y1="345" x2="760" y2="345" stroke="#e9ecef"/>
+  <text x="200" y="375" fill="#868e96" font-family="Segoe UI, Arial, sans-serif" font-size="12">Created on · Last updated · Created by · Updated by</text>
+  <rect x="200" y="400" width="80" height="36" rx="6" fill="#fff" stroke="#ced4da"/>
+  <text x="218" y="423" fill="#495057" font-family="Segoe UI, Arial, sans-serif" font-size="14">Back</text>
+  <text x="160" y="510" fill="#adb5bd" font-family="Segoe UI, Arial, sans-serif" font-size="12">Placeholder  replace with a browser screenshot for submission.</text>
+</svg>

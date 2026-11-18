@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <rect width="960" height="540" fill="#f8f9fa"/>
+  <rect width="960" height="52" fill="#212529"/>
+  <text x="24" y="34" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="16">Task Management</text>
+  <text x="800" y="34" fill="#adb5bd" font-family="Segoe UI, Arial, sans-serif" font-size="14">Tasks</text>
+  <rect x="40" y="80" width="880" height="44" rx="6" fill="#fff" stroke="#dee2e6"/>
+  <text x="56" y="108" fill="#6c757d" font-family="Segoe UI, Arial, sans-serif" font-size="14">Search tasks&</text>
+  <rect x="40" y="140" width="880" height="360" rx="6" fill="#fff" stroke="#dee2e6"/>
+  <text x="56" y="176" fill="#212529" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">Title</text>
+  <text x="360" y="176" fill="#212529" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">Due date</text>
+  <text x="520" y="176" fill="#212529" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">Status</text>
+  <text x="720" y="176" fill="#212529" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">Actions</text>
+  <line x1="56" y1="188" x2="904" y2="188" stroke="#e9ecef"/>
+  <text x="56" y="220" fill="#495057" font-family="Segoe UI, Arial, sans-serif" font-size="14">Sample task</text>
+  <text x="360" y="220" fill="#495057" font-family="Segoe UI, Arial, sans-serif" font-size="14">2026-05-15</text>
+  <rect x="520" y="204" width="88" height="24" rx="4" fill="#cff4fc"/>
+  <text x="532" y="221" fill="#055160" font-family="Segoe UI, Arial, sans-serif" font-size="12">Pending</text>
+  <text x="720" y="220" fill="#0d6efd" font-family="Segoe UI, Arial, sans-serif" font-size="13">View · Edit · Delete</text>
+  <text x="40" y="520" fill="#adb5bd" font-family="Segoe UI, Arial, sans-serif" font-size="12">Placeholder  export a PNG from the browser if your README must use raster images.</text>
+</svg>

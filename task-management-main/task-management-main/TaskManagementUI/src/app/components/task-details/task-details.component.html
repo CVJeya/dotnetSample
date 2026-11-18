@@ -1,0 +1,53 @@
+<div class="container py-3" style="max-width: 960px">
+  <div class="mb-3">
+    <a routerLink="/tasks" class="small text-decoration-none text-muted">&larr; Back to tasks</a>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" />
+
+  <div *ngIf="!isLoading && task" class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+        <div>
+          <div class="text-muted small mb-1">Task</div>
+          <h1 class="h3 fw-semibold mb-2">{{ task.taskTitle }}</h1>
+          <span [class]="badgeClass(task.taskStatus)">{{ task.taskStatus }}</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-start">
+          <a class="btn btn-outline-primary btn-sm" [routerLink]="['/tasks/edit', task.id]">Edit</a>
+          <button type="button" class="btn btn-outline-danger btn-sm" (click)="delete()">Delete</button>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="detail-label">Due date</div>
+          <div class="detail-value">{{ task.taskDueDate | date: 'fullDate' }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-label">Created</div>
+          <div class="detail-value">{{ task.createdOn | date: 'medium' }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-label">Last updated</div>
+          <div class="detail-value">{{ task.lastUpdatedOn | date: 'medium' }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-label">Ownership</div>
+          <div class="detail-value">
+            <div><span class="text-muted">Created by:</span> {{ task.createdBy }}</div>
+            <div><span class="text-muted">Updated by:</span> {{ task.lastUpdatedBy }}</div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="detail-label">Description</div>
+          <div class="detail-value text-break">{{ task.taskDescription || '—' }}</div>
+        </div>
+        <div class="col-12">
+          <div class="detail-label">Remarks</div>
+          <div class="detail-value text-break">{{ task.taskRemarks || '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
