@@ -1,0 +1,56 @@
+<section class="auth-layout login-layout">
+  <div class="auth-card">
+    <span class="eyebrow">WELCOME BACK</span>
+    <h1>Sign in to your account</h1>
+    <p class="auth-intro">Access your appointment requests and continue booking care.</p>
+
+    @if (error()) {
+      <div class="form-error" role="alert">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label class="form-field">
+        <span>Email address</span>
+        <input
+          type="email"
+          formControlName="email"
+          autocomplete="username"
+          placeholder="you@example.com"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small>Enter a valid email address.</small>
+        }
+      </label>
+
+      <label class="form-field">
+        <span>Password</span>
+        <input
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          placeholder="Your password"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small>Enter your password.</small>
+        }
+      </label>
+
+      <button class="button button-primary auth-submit" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="auth-switch">New to MediDiagnose? <a routerLink="/register">Create a patient account</a></p>
+    <p class="privacy-copy">Doctor and administrator accounts are provided by the hospital.</p>
+  </div>
+
+  <aside class="auth-aside">
+    <span class="aside-mark" aria-hidden="true">+</span>
+    <h2>Your next visit starts here.</h2>
+    <p>Sign in to keep your appointments organized and see when the hospital has reviewed a request.</p>
+    <div class="aside-highlight">
+      <span class="highlight-check" aria-hidden="true">✓</span>
+      <span>One place for your appointment updates</span>
+    </div>
+  </aside>
+</section>

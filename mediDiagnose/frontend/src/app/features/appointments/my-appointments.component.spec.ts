@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { AppointmentService } from '../../core/api/appointment.service';
 import { MyAppointmentsComponent } from './my-appointments.component';
@@ -10,6 +11,7 @@ describe('MyAppointmentsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MyAppointmentsComponent],
       providers: [
+        provideRouter([]),
         {
           provide: AppointmentService,
           useValue: {

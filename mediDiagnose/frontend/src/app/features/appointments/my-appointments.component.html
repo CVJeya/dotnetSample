@@ -1,0 +1,64 @@
+<section class="appointments-page">
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">YOUR CARE, ORGANIZED</span>
+      <h1>My appointments</h1>
+      <p>Keep track of your requests and upcoming visits.</p>
+    </div>
+    <a class="button button-primary" routerLink="/doctors">Find a doctor <span aria-hidden="true">→</span></a>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state" role="status">Loading your appointments…</div>
+  } @else if (error()) {
+    <div class="empty-state" role="alert">
+      <h2>We couldn’t load your appointments</h2>
+      <p>{{ error() }}</p>
+      <button class="button button-outline" type="button" (click)="loadAppointments()">Try again</button>
+    </div>
+  } @else if (appointments().length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon" aria-hidden="true">□</span>
+      <h2>No appointments yet</h2>
+      <p>When you request a time with a doctor, it will appear here.</p>
+      <a class="button button-primary" routerLink="/doctors">Browse doctors</a>
+    </div>
+  } @else {
+    <div class="appointment-list">
+      @for (appointment of appointments(); track appointment.id) {
+        <article class="appointment-card">
+          <div class="date-block">
+            <span>{{ appointment.startsAt | date: 'MMM' }}</span>
+            <strong>{{ appointment.startsAt | date: 'd' }}</strong>
+            <span>{{ appointment.startsAt | date: 'EEE' }}</span>
+          </div>
+          <div class="appointment-details">
+            <div class="detail-title">
+              <div>
+                <h2>Doctor appointment</h2>
+                <span class="reference">Request {{ appointment.id.slice(0, 8) }}</span>
+              </div>
+              <span class="status-badge" [attr.data-status]="appointment.status">
+                <span class="status-dot" aria-hidden="true"></span>
+                {{ statusLabel(appointment.status) }}
+              </span>
+            </div>
+            <p class="appointment-time">
+              {{ appointment.startsAt | date: 'EEEE, MMMM d, y' }}
+              <span aria-hidden="true">·</span>
+              {{ appointment.startsAt | date: 'h:mm a' }}
+            </p>
+            <p class="appointment-shift">{{ appointment.shift }} appointment</p>
+            @if (appointment.status === 'Pending') {
+              <p class="status-message">The hospital team is reviewing your request.</p>
+            } @else if (appointment.status === 'Approved') {
+              <p class="status-message approved-message">Your appointment has been approved.</p>
+            } @else {
+              <p class="status-message declined-message">This request was declined. You can choose another available time.</p>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
