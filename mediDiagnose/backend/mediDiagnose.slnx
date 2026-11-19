@@ -8,5 +8,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/BuildingBlocks.Tests/BuildingBlocks.Tests.csproj" />
+    <Project Path="tests/IdentityService.Tests/IdentityService.Tests.csproj" />
   </Folder>
 </Solution>
