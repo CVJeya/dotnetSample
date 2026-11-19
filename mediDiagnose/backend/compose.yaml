@@ -17,5 +17,84 @@ services:
       timeout: 5s
       retries: 10
 
+  identity:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PROJECT: IdentityService
+    command: ["IdentityService.dll"]
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      DB_URL: ${IDENTITY_DB_URL:?Set IDENTITY_DB_URL in backend/.env}
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in backend/.env}
+      Jwt__Issuer: ${JWT_ISSUER:-MediDiagnose}
+      Jwt__Audience: ${JWT_AUDIENCE:-MediDiagnoseClient}
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  directory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PROJECT: DirectoryService
+    command: ["DirectoryService.dll"]
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      DB_URL: ${DIRECTORY_DB_URL:?Set DIRECTORY_DB_URL in backend/.env}
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in backend/.env}
+      Jwt__Issuer: ${JWT_ISSUER:-MediDiagnose}
+      Jwt__Audience: ${JWT_AUDIENCE:-MediDiagnoseClient}
+      Hospital__TimeZone: ${HOSPITAL_TIME_ZONE:?Set HOSPITAL_TIME_ZONE in backend/.env}
+      InternalServices__ApiKey: ${INTERNAL_SERVICES_API_KEY:?Set INTERNAL_SERVICES_API_KEY in backend/.env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  appointments:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PROJECT: AppointmentService
+    command: ["AppointmentService.dll"]
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      DB_URL: ${APPOINTMENTS_DB_URL:?Set APPOINTMENTS_DB_URL in backend/.env}
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in backend/.env}
+      Jwt__Issuer: ${JWT_ISSUER:-MediDiagnose}
+      Jwt__Audience: ${JWT_AUDIENCE:-MediDiagnoseClient}
+      Hospital__TimeZone: ${HOSPITAL_TIME_ZONE:?Set HOSPITAL_TIME_ZONE in backend/.env}
+      Directory__BaseUrl: http://directory:8080/
+      InternalServices__ApiKey: ${INTERNAL_SERVICES_API_KEY:?Set INTERNAL_SERVICES_API_KEY in backend/.env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      directory:
+        condition: service_started
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PROJECT: Gateway
+    command: ["Gateway.dll"]
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ServiceUrls__Identity: http://identity:8080/
+      ServiceUrls__Directory: http://directory:8080/
+      ServiceUrls__Appointments: http://appointments:8080/
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    depends_on:
+      - identity
+      - directory
+      - appointments
+
 volumes:
   postgres-data:

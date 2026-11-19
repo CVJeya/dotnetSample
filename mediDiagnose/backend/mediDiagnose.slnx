@@ -11,5 +11,6 @@
     <Project Path="tests/IdentityService.Tests/IdentityService.Tests.csproj" />
     <Project Path="tests/DirectoryService.Tests/DirectoryService.Tests.csproj" />
     <Project Path="tests/AppointmentService.Tests/AppointmentService.Tests.csproj" />
+    <Project Path="tests/Gateway.Tests/Gateway.Tests.csproj" />
   </Folder>
 </Solution>
