@@ -3,6 +3,12 @@ import { getAuthHeaders } from '../auth/authAPI';
 const BASE_URL = '/api/users';
 
 export const usersAPI = {
+  async getCurrentUser() {
+    const response = await fetch(`${BASE_URL}/me`, { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error('Failed to fetch current user');
+    return response.json();
+  },
+
   async getAll() {
     const response = await fetch(BASE_URL, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch users');

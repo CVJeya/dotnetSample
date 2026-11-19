@@ -33,6 +33,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/product-form/product-form').then(m => m.ProductFormComponent),
   },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/profile/profile').then(m => m.ProfileComponent),
+  },
 
   // The API now requires a login for user endpoints, so these are guarded too
   {

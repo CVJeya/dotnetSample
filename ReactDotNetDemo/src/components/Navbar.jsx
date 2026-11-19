@@ -25,7 +25,7 @@ export default function Navbar() {
         <Link to="/products" className={linkClass('/products')}>Products</Link>
         {isAuthenticated ? (
           <>
-            <span className="nav-user">{user?.name}</span>
+            <Link to="/profile" className={`nav-user ${linkClass('/profile')}`}>{user?.name}</Link>
             <Link to="/" onClick={handleLogout} className="nav-link">Logout</Link>
           </>
         ) : (
