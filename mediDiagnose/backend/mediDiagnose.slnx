@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BuildingBlocks/BuildingBlocks.csproj" />
+    <Project Path="src/IdentityService/IdentityService.csproj" />
+    <Project Path="src/DirectoryService/DirectoryService.csproj" />
+    <Project Path="src/AppointmentService/AppointmentService.csproj" />
+    <Project Path="src/Gateway/Gateway.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BuildingBlocks.Tests/BuildingBlocks.Tests.csproj" />
+  </Folder>
+</Solution>
