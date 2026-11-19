@@ -5,7 +5,7 @@
       <a routerLink="/users" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Users</a>
       <a routerLink="/products" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Products</a>
       @if (isLoggedIn()) {
-        <span class="nav-user">{{ username() }}</span>
+        <a routerLink="/profile" class="nav-user nav-link" routerLinkActive="active">{{ username() }}</a>
         <a routerLink="/" class="nav-link" (click)="logout()">Logout</a>
       } @else {
         <a routerLink="/login" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Login</a>

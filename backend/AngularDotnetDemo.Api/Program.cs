@@ -125,6 +125,19 @@ var users = app.MapGroup("/api/users").RequireAuthorization();
 users.MapGet("/", async (AppDbContext db) =>
     Results.Ok(await db.Users.AsNoTracking().Select(u => new { u.Id, u.Name, u.Email, u.CreatedAt }).ToListAsync()));
 
+users.MapGet("/me", async Task<IResult> (ClaimsPrincipal principal, AppDbContext db) =>
+{
+    if (!int.TryParse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+        return Results.Unauthorized();
+
+    var user = await db.Users.AsNoTracking()
+        .Where(u => u.Id == userId)
+        .Select(u => new { u.Id, u.Name, u.Email, u.CreatedAt })
+        .FirstOrDefaultAsync();
+
+    return user is null ? Results.NotFound() : Results.Ok(user);
+});
+
 users.MapGet("/{id:int}", async (int id, AppDbContext db) =>
     await db.Users.AsNoTracking().Where(u => u.Id == id).Select(u => new { u.Id, u.Name, u.Email, u.CreatedAt }).FirstOrDefaultAsync()
         is { } u ? Results.Ok(u) : Results.NotFound());

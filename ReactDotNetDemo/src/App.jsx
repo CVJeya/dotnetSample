@@ -8,6 +8,7 @@ import ProductForm from './components/ProductForm';
 import UserList from './features/users/UserList';
 import UserForm from './features/users/UserForm';
 import UserDetail from './features/users/UserDetail';
+import Profile from './features/users/Profile';
 import './App.css';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/products" element={<ProtectedRoute><ProductList /></ProtectedRoute>} />
         <Route path="/products/new" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
         <Route path="/products/:id" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
         <Route path="/users" element={<UserList />} />
         <Route path="/users/new" element={<UserForm />} />

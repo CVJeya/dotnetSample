@@ -1,6 +1,66 @@
 @AngularDotnetDemo.Api_HostAddress = http://localhost:5104
+@AliceToken = replace-with-alice-login-token
+@BobToken = replace-with-bob-login-token
+@DisposableUserToken = replace-with-disposable-registration-token
+@DisposableUserId = replace-with-disposable-user-id
 
-GET {{AngularDotnetDemo.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Login as Alice and copy the response token to AliceToken
+# @name loginAlice
+POST {{AngularDotnetDemo.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "password123"
+}
 
 ###
+### Alice receives her own profile fields; passwordHash must be absent
+GET {{AngularDotnetDemo.Api_HostAddress}}/api/users/me
+Authorization: Bearer {{AliceToken}}
+
+###
+### Login as Bob and copy the response token to BobToken
+# @name loginBob
+POST {{AngularDotnetDemo.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "bob@example.com",
+  "password": "password123"
+}
+
+###
+### Bob receives his own profile fields; passwordHash must be absent
+GET {{AngularDotnetDemo.Api_HostAddress}}/api/users/me
+Authorization: Bearer {{BobToken}}
+
+###
+### Anonymous request must return 401
+GET {{AngularDotnetDemo.Api_HostAddress}}/api/users/me
+
+###
+### Invalid token request must return 401
+GET {{AngularDotnetDemo.Api_HostAddress}}/api/users/me
+Authorization: Bearer not-a-valid-token
+
+###
+### Register a fresh disposable account and copy its token and id to the variables above
+POST {{AngularDotnetDemo.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Disposable Profile Test",
+  "email": "replace-with-a-unique-test-address@example.com",
+  "password": "temporary-password-123"
+}
+
+###
+### Delete only the disposable account created above
+DELETE {{AngularDotnetDemo.Api_HostAddress}}/api/users/{{DisposableUserId}}
+Authorization: Bearer {{AliceToken}}
+
+###
+### A deleted account's valid token must return 404
+GET {{AngularDotnetDemo.Api_HostAddress}}/api/users/me
+Authorization: Bearer {{DisposableUserToken}}
