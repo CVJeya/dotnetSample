@@ -42,14 +42,13 @@ public sealed class GetAvailability(
             return [];
         }
 
-        var reservedStarts = await db.AppointmentRequests.AsNoTracking()
+        var reservedIntervals = await db.AppointmentRequests.AsNoTracking()
             .Where(item => item.DoctorId == doctorId
                 && item.LocalDate == date
                 && item.Shift == shiftName
                 && item.Status != AppointmentStatus.Declined)
-            .Select(item => item.StartsAtUtc)
+            .Select(item => new { item.StartsAtUtc, item.EndsAtUtc })
             .ToListAsync(cancellationToken);
-        var reservedUtc = reservedStarts.ToHashSet();
 
         return GenerateAvailability.Generate(date, new DoctorShiftSchedule(
                 shift.Shift,
@@ -57,7 +56,9 @@ public sealed class GetAvailability(
                 shift.EndTime,
                 shift.AppointmentDurationMinutes),
             hospitalTimeZone)
-            .Where(slot => !reservedUtc.Contains(slot.StartsAt.UtcDateTime))
+            .Where(slot => !reservedIntervals.Any(reserved =>
+                reserved.StartsAtUtc < slot.EndsAt.UtcDateTime
+                && reserved.EndsAtUtc > slot.StartsAt.UtcDateTime))
             .ToArray();
     }
 }

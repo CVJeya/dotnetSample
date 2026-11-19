@@ -162,6 +162,33 @@ public class AppointmentCapacityTests
             (await db.AppointmentRequests.SingleAsync()).StartsAtUtc);
     }
 
+    [Fact]
+    public async Task ScheduleEdit_OverlappingAppointmentCannotBeBooked()
+    {
+        using var factory = new AppointmentApiFactory();
+        var doctorId = Guid.NewGuid();
+        factory.Directory.SetSchedule(doctorId, new DirectoryShift("Morning", new TimeOnly(9, 0), new TimeOnly(12, 0), 30));
+        using var client = factory.CreateAuthenticatedClient(Guid.NewGuid(), "Patient");
+        var originalStart = new DateTimeOffset(2026, 11, 23, 9, 0, 0, TimeSpan.Zero);
+        Assert.Equal(HttpStatusCode.Created,
+            (await RequestAppointmentAsync(client, doctorId, originalStart)).StatusCode);
+
+        factory.Directory.SetSchedule(doctorId, new DirectoryShift("Morning", new TimeOnly(9, 0), new TimeOnly(12, 0), 20));
+        var overlappingStart = new DateTimeOffset(2026, 11, 23, 9, 20, 0, TimeSpan.Zero);
+
+        var request = await RequestAppointmentAsync(client, doctorId, overlappingStart);
+        using var publicClient = factory.CreateClient();
+        var availability = await publicClient.GetFromJsonAsync<JsonElement>(
+            $"/api/availability/doctors/{doctorId}?date=2026-11-23&shift=Morning");
+
+        Assert.Equal(HttpStatusCode.Conflict, request.StatusCode);
+        Assert.DoesNotContain(availability.EnumerateArray(),
+            slot => slot.GetProperty("startsAt").GetDateTimeOffset() == overlappingStart);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppointmentsDbContext>();
+        Assert.Equal(1, await db.ShiftCapacities.Select(capacity => capacity.ReservedCount).SingleAsync());
+    }
+
     private static Task<HttpResponseMessage> RequestAppointmentAsync(
         HttpClient client,
         Guid doctorId,

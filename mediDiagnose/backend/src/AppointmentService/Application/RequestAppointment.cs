@@ -99,6 +99,19 @@ public sealed class RequestAppointment(
             return new AppointmentRequestResult(AppointmentRequestOutcome.Unavailable, null);
         }
 
+        var overlapsExistingAppointment = await db.AppointmentRequests.AsNoTracking()
+            .AnyAsync(item => item.DoctorId == doctorId
+                && item.LocalDate == localDate
+                && item.Shift == selectedShift.Shift
+                && item.Status != AppointmentStatus.Declined
+                && item.StartsAtUtc < generatedSlot.EndsAt.UtcDateTime
+                && item.EndsAtUtc > startsAtUtc, cancellationToken);
+        if (overlapsExistingAppointment)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return new AppointmentRequestResult(AppointmentRequestOutcome.Unavailable, null);
+        }
+
         var appointment = new AppointmentRequest
         {
             Id = Guid.NewGuid(),
