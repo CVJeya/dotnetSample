@@ -151,7 +151,7 @@ git commit -m "feat: add patient authentication"
 - Doctor profiles store the Identity `userId` as an external identifier; do not create cross-service database foreign keys.
 - Admin doctor creation stores the Identity account ID in the Directory profile after the Identity service creates the Doctor account.
 - A shift contains weekday, `Morning` or `Evening`, local start and end times, and appointment duration in minutes.
-- Produces internal `GET /internal/doctors/{doctorId}/shifts?date=YYYY-MM-DD` for the Appointments service and `GET /internal/patients/{patientId}` for appointment-related staff views. The patient route requires the `X-Internal-Service-Key` header, configured by `InternalServices__ApiKey` and compared in constant time. Do not include patient profile data in public doctor responses.
+- Produces internal `GET /internal/doctors/{doctorId}/shifts?date=YYYY-MM-DD`, `GET /internal/doctors/by-user/{userId}`, and `GET /internal/patients/{patientId}` for the Appointments service. All internal routes require the `X-Internal-Service-Key` header, configured by `InternalServices__ApiKey` and compared in constant time. Do not include patient profile data in public doctor responses.
 - Patient profile creation is available only through the authenticated patient's `PUT /api/patients/me`; admins may list, update, and deactivate those profiles but cannot create a profile without a verified Identity account.
 
 - [ ] **Step 1: Write failing tests** for public doctor browsing, exclusion of private patient data, admin-only profile management, profile deactivation without deleting appointment history, patient ownership of `/patients/me`, Doctor account/profile linkage, and doctor ownership of shift updates.
@@ -194,9 +194,10 @@ git commit -m "feat: add hospital directory and schedules"
 - Create: `mediDiagnose\backend\tests\AppointmentService.Tests\AppointmentAuthorizationTests.cs`
 
 **Interfaces:**
-- Consumes: the internal doctor shift and patient-profile responses from Task 3 and identity claims from Task 2. Configure `InternalServices__ApiKey` for service-to-service patient lookups.
+- Consumes: the internal doctor shift, doctor lookup, and patient-profile responses from Task 3 and identity claims from Task 2. Configure `InternalServices__ApiKey` for service-to-service lookups.
 - Produces: public `GET /api/availability/doctors/{doctorId}?date=YYYY-MM-DD&shift=Morning|Evening`; `POST /api/appointments` with `{ doctorId, startsAt }` where `startsAt` is an offset-bearing timestamp returned by availability; `GET /api/appointments/mine`; admin-only `GET /api/admin/appointments?status=Pending` and separate `POST /api/admin/appointments/{id}/approve` and `/decline` endpoints; doctor-only `GET /api/doctors/me/appointments`.
 - Appointment statuses are `Pending`, `Approved`, and `Declined`. Derive `patientId` from `sub`; never accept it from a booking request body.
+- Require an active Directory patient profile before accepting a booking; return patient profile PII only in admin/doctor appointment responses via the authenticated internal Directory route.
 - The capacity key is `(doctorId, hospital-local date, shift)`. Count `Pending` and `Approved`; exclude `Declined`.
 
 - [ ] **Step 1: Write failing domain tests** named `GeneratedSlots_EndNoLaterThanShiftClose`, `ReservesPendingRequestsAndCapsEachShiftAtTwenty`, `ConcurrentRequestsForFinalCapacity_NeverExceedsTwenty`, `ConcurrentRequestsForSameSlot_OnlyOneSucceeds`, `DeclinedRequest_ReleasesCapacityAndSlot`, `ScheduleEdit_PreservesExistingAppointments`, `RequestAppointment_DerivesPatientFromClaims`, and `PatientCannotApproveOrReadAnotherPatientsAppointments`.
@@ -205,7 +206,7 @@ git commit -m "feat: add hospital directory and schedules"
 Run: `dotnet test mediDiagnose\backend\tests\AppointmentService.Tests\AppointmentService.Tests.csproj`
 Expected: FAIL because slot generation, capacity reservation, and appointment workflows do not exist.
 
-- [ ] **Step 3: Implement slot generation from the Directory shift response.** Generate only complete appointment intervals within the shift and in the configured hospital time zone.
+- [ ] **Step 3: Implement slot generation from the Directory shift response.** Generate only complete appointment intervals within the shift and in the configured hospital time zone. Skip slots whose local interval is invalid, ambiguous, or crosses a daylight-saving offset transition.
 - [ ] **Step 4: Implement capacity reservation and unique-slot protection in PostgreSQL.** Atomically reserve a shift place and the selected start time in the same transaction before creating a Pending request. Enforce uniqueness only for Pending or Approved requests so a declined slot can be requested again. Return a conflict when the slot is taken or the 20-place limit is reached.
 - [ ] **Step 5: Implement patient status, admin decisions, and doctor-specific appointment queries.** Declining a request releases its reservation; schedule edits never rewrite existing appointment records.
 - [ ] **Step 6: Add and apply the Appointments EF migration; run the Appointment tests against the test PostgreSQL database.**

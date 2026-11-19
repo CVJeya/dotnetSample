@@ -36,6 +36,10 @@ public class DoctorScheduleTests
         });
         Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);
 
+        var deniedResponse = await client.GetAsync($"/internal/doctors/{doctorId}/shifts?date=2026-11-23");
+        Assert.Equal(HttpStatusCode.Unauthorized, deniedResponse.StatusCode);
+
+        client.DefaultRequestHeaders.Add("X-Internal-Service-Key", DirectoryApiFactory.InternalApiKey);
         var response = await client.GetAsync($"/internal/doctors/{doctorId}/shifts?date=2026-11-23");
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
@@ -43,6 +47,35 @@ public class DoctorScheduleTests
         Assert.Equal("Asia/Kolkata", payload.RootElement.GetProperty("hospitalTimeZone").GetString());
         Assert.Equal(1, payload.RootElement.GetProperty("shifts").GetArrayLength());
         Assert.Equal("Morning", payload.RootElement.GetProperty("shifts")[0].GetProperty("shift").GetString());
+    }
+
+    [Fact]
+    public async Task InternalDoctorLookup_RequiresServiceKeyAndResolvesIdentityUser()
+    {
+        using var factory = new DirectoryApiFactory();
+        using var client = factory.CreateClient();
+        var doctorUserId = Guid.NewGuid();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer", DirectoryApiFactory.CreateToken(Guid.NewGuid(), "Admin"));
+        var createResponse = await client.PostAsJsonAsync("/api/admin/doctors", new
+        {
+            userId = doctorUserId,
+            name = "Dr. Internal",
+            specialty = "Family Medicine"
+        });
+        using var doctorPayload = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
+        var doctorId = doctorPayload.RootElement.GetProperty("id").GetGuid();
+        client.DefaultRequestHeaders.Authorization = null;
+
+        var deniedResponse = await client.GetAsync($"/internal/doctors/by-user/{doctorUserId}");
+        Assert.Equal(HttpStatusCode.Unauthorized, deniedResponse.StatusCode);
+
+        client.DefaultRequestHeaders.Add("X-Internal-Service-Key", DirectoryApiFactory.InternalApiKey);
+        var response = await client.GetAsync($"/internal/doctors/by-user/{doctorUserId}");
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(doctorId, payload.RootElement.GetProperty("doctorId").GetGuid());
     }
 
     [Fact]

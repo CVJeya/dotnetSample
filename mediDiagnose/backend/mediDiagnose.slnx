@@ -10,5 +10,6 @@
     <Project Path="tests/BuildingBlocks.Tests/BuildingBlocks.Tests.csproj" />
     <Project Path="tests/IdentityService.Tests/IdentityService.Tests.csproj" />
     <Project Path="tests/DirectoryService.Tests/DirectoryService.Tests.csproj" />
+    <Project Path="tests/AppointmentService.Tests/AppointmentService.Tests.csproj" />
   </Folder>
 </Solution>

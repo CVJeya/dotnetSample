@@ -82,13 +82,38 @@ public static class DoctorEndpoints
             }
         });
 
+        endpoints.MapGet("/internal/doctors/by-user/{userId:guid}", async (
+            Guid userId,
+            HttpRequest request,
+            InternalServiceKey serviceKey,
+            DoctorDirectory directory,
+            CancellationToken cancellationToken) =>
+        {
+            if (!serviceKey.IsValid(request))
+            {
+                return Results.Unauthorized();
+            }
+
+            var doctor = await directory.GetByUserIdAsync(userId, cancellationToken);
+            return doctor is null
+                ? Results.NotFound()
+                : Results.Ok(new InternalDoctorResponse(doctor.Id, doctor.UserId));
+        });
+
         endpoints.MapGet("/internal/doctors/{doctorId:guid}/shifts", async (
             Guid doctorId,
             DateOnly date,
+            HttpRequest request,
+            InternalServiceKey serviceKey,
             DoctorDirectory directory,
             ManageDoctorSchedule manager,
             CancellationToken cancellationToken) =>
         {
+            if (!serviceKey.IsValid(request))
+            {
+                return Results.Unauthorized();
+            }
+
             var doctor = await directory.GetPublicDoctorAsync(doctorId, cancellationToken);
             if (doctor is null)
             {
@@ -211,3 +236,5 @@ public sealed record DoctorScheduleResponse(
     Guid DoctorId,
     string HospitalTimeZone,
     IReadOnlyList<DoctorShiftResponse> Shifts);
+
+public sealed record InternalDoctorResponse(Guid DoctorId, Guid UserId);
