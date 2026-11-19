@@ -1,0 +1,36 @@
+@if (error()) {
+  <div class="error">Error: {{ error() }}</div>
+} @else if (!user()) {
+  <div class="loading">Loading...</div>
+} @else {
+  @let u = user()!;
+  <div class="user-detail">
+    <div class="page-header">
+      <h1>{{ u.name }}</h1>
+      <div class="detail-actions">
+        <a [routerLink]="['/users', u.id, 'edit']" class="btn btn-edit">Edit</a>
+        <button type="button" class="btn btn-danger" (click)="deleteUser()">Delete</button>
+        <a routerLink="/users" class="btn btn-secondary">Back</a>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-row">
+        <span class="detail-label">ID</span>
+        <span class="detail-value">{{ u.id }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">{{ u.name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Email</span>
+        <span class="detail-value">{{ u.email }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Created At</span>
+        <span class="detail-value">{{ u.createdAt | date: 'medium' }}</span>
+      </div>
+    </div>
+  </div>
+}

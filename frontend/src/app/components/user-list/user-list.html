@@ -1,33 +1,46 @@
-<div class="container">
-  <h1>Users</h1>
+@if (loading()) {
+  <div class="loading">Loading users...</div>
+} @else if (error()) {
+  <div class="error">Error: {{ error() }}</div>
+} @else {
+  <div class="user-list">
+    <div class="page-header">
+      <h1>Users</h1>
+      <a routerLink="/users/new" class="btn btn-primary">+ Add User</a>
+    </div>
 
-  <ng-container *ngIf="users$ | async as users">
-    <table *ngIf="users.length > 0" class="table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users">
-          <td>{{ user.id }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.createdAt | date:'mediumDate' }}</td>
-          <td>
-            <a [routerLink]="['/users', user.id]" class="btn-edit">Edit</a>
-            <button (click)="deleteUser(user.id)" class="btn-delete">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p *ngIf="users.length === 0" class="text-muted">No users found.</p>
-  </ng-container>
-
-  <a routerLink="/users/new" class="btn-primary">Add New User</a>
-</div>
+    @if (users().length === 0) {
+      <p class="empty-state">No users found. Create one to get started.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr>
+                <td>{{ user.id }}</td>
+                <td>
+                  <a [routerLink]="['/users', user.id]" class="user-link">{{ user.name }}</a>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.createdAt | date: 'mediumDate' }}</td>
+                <td class="actions">
+                  <a [routerLink]="['/users', user.id, 'edit']" class="btn btn-sm btn-edit">Edit</a>
+                  <button type="button" class="btn btn-sm btn-danger" (click)="deleteUser(user)">Delete</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

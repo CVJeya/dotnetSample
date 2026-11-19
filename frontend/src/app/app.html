@@ -1,23 +1,20 @@
-<nav>
-  <a routerLink="/" class="brand">Angular Product Manager</a>
-  <div class="nav-links">
-    <a routerLink="/users">Users</a>
-    <a routerLink="/products">Products</a>
-    <ng-container *ngIf="isLoggedIn; else loggedOut">
-      <span class="nav-user">{{ username }}</span>
-      <a routerLink="/" (click)="logout()">Logout</a>
-    </ng-container>
-    <ng-template #loggedOut>
-      <a routerLink="/login">Login</a>
-      <a routerLink="/register">Register</a>
-    </ng-template>
-  </div>
-</nav>
+<div class="app-layout">
+  <nav class="navbar">
+    <a routerLink="/" class="navbar-brand">Angular &middot; .NET Demo</a>
+    <div class="navbar-links">
+      <a routerLink="/users" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Users</a>
+      <a routerLink="/products" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Products</a>
+      @if (isLoggedIn()) {
+        <span class="nav-user">{{ username() }}</span>
+        <a routerLink="/" class="nav-link" (click)="logout()">Logout</a>
+      } @else {
+        <a routerLink="/login" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Login</a>
+        <a routerLink="/register" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Register</a>
+      }
+    </div>
+  </nav>
 
-<main>
-  <router-outlet />
-</main>
-
-<footer>
-  <p>Angular 22 + ASP.NET Web API Demo</p>
-</footer>
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

@@ -1,30 +1,40 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user';
 
 @Component({
   selector: 'app-user-list',
-  imports: [CommonModule, RouterLink],
-  templateUrl: './user-list.html',
-  styleUrl: './user-list.css'
+  imports: [DatePipe, RouterLink],
+  templateUrl: './user-list.html'
 })
-export class UserList {
+export class UserList implements OnInit {
   private readonly userService = inject(UserService);
-  private readonly refresh$ = new BehaviorSubject<void>(undefined);
 
-  users$: Observable<User[]> = this.refresh$.pipe(
-    switchMap(() => this.userService.getUsers())
-  );
+  readonly users = signal<User[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
 
-  deleteUser(id: number): void {
-    if (!confirm('Delete this user?')) return;
+  ngOnInit(): void {
+    this.userService.getUsers().subscribe({
+      next: (list) => {
+        this.users.set(list);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to fetch users');
+        this.loading.set(false);
+      }
+    });
+  }
 
-    this.userService.deleteUser(id).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err: unknown) => console.error(err)
+  deleteUser(user: User): void {
+    if (!confirm(`Are you sure you want to delete "${user.name}"?`)) return;
+
+    this.userService.deleteUser(user.id).subscribe({
+      next: () => this.users.update((list) => list.filter((u) => u.id !== user.id)),
+      error: () => this.error.set('Failed to delete user')
     });
   }
 }

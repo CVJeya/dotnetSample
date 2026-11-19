@@ -34,19 +34,29 @@ export const routes: Routes = [
       import('./components/product-form/product-form').then(m => m.ProductFormComponent),
   },
 
+  // The API now requires a login for user endpoints, so these are guarded too
   {
     path: 'users',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./components/user-list/user-list').then(m => m.UserList),
   },
   {
     path: 'users/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/user-form/user-form').then(m => m.UserForm),
+  },
+  {
+    path: 'users/:id/edit',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./components/user-form/user-form').then(m => m.UserForm),
   },
   {
     path: 'users/:id',
+    canActivate: [authGuard],
     loadComponent: () =>
-      import('./components/user-form/user-form').then(m => m.UserForm),
+      import('./components/user-detail/user-detail').then(m => m.UserDetail),
   },
 ];

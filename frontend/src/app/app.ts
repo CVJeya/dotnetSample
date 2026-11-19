@@ -1,37 +1,34 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, NgIf],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  templateUrl: './app.html'
 })
 export class App {
   private readonly auth = inject(AuthService);
-  readonly title = 'Angular Product Manager';
+  private readonly router = inject(Router);
 
-  ngOnInit(): void {
-    console.log('[App] Root component initialized');
-  }
+  readonly isLoggedIn = signal(this.auth.isLoggedIn);
+  readonly username = signal(this.auth.user?.name ?? '');
 
-  get isLoggedIn(): boolean {
-    const loggedIn = this.auth.isLoggedIn;
-    console.log('[App] isLoggedIn getter called → loggedIn:', loggedIn);
-    return loggedIn;
-  }
-
-  get username(): string {
-    const user = this.auth.user?.name ?? '';
-    console.log('[App] username getter called → username:', user);
-    return user;
+  constructor() {
+    // Re-read the session after every navigation so the navbar updates after login/logout
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe(() => this.syncAuth());
   }
 
   logout(): void {
-    console.log('[App] logout() called');
     this.auth.logout();
-    console.log('[App] logout() complete ✓');
+    this.syncAuth();
+  }
+
+  private syncAuth(): void {
+    this.isLoggedIn.set(this.auth.isLoggedIn);
+    this.username.set(this.auth.user?.name ?? '');
   }
 }

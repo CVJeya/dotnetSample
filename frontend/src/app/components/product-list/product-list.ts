@@ -1,79 +1,90 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Observable } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product';
 
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule, RouterLink],
+  imports: [CurrencyPipe, RouterLink],
   template: `
-    <div class="container">
-      <h1>Products</h1>
+    @if (loading()) {
+      <div class="loading">Loading products...</div>
+    } @else if (error()) {
+      <div class="error">Error: {{ error() }}</div>
+    } @else {
+      <div>
+        <div class="page-header">
+          <h1>Products</h1>
+          <a routerLink="/products/new" class="btn btn-primary">Add Product</a>
+        </div>
 
-      <ng-container *ngIf="products$ | async as products">
-        <table *ngIf="products.length > 0" class="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Created By</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let product of products">
-              <td>{{ product.id }}</td>
-              <td>{{ product.name }}</td>
-              <td>{{ product.description }}</td>
-              <td>{{ product.price | currency }}</td>
-              <td>{{ product.createdBy }}</td>
-              <td>
-                <button (click)="deleteProduct(product.id)" class="btn-delete">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <p *ngIf="products.length === 0" class="text-muted">No products found.</p>
-      </ng-container>
-
-      <a routerLink="/products/new" class="btn-primary">Add Product</a>
-    </div>
+        @if (products().length === 0) {
+          <div class="empty-state">No products found.</div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Price</th>
+                  <th>Created By</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (product of products(); track product.id) {
+                  <tr>
+                    <td>{{ product.id }}</td>
+                    <td class="user-link">{{ product.name }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>{{ product.price | currency: 'USD' }}</td>
+                    <td>{{ product.createdBy }}</td>
+                    <td>
+                      <div class="actions">
+                        <button type="button" class="btn btn-sm btn-danger" (click)="deleteProduct(product.id)">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
   `
 })
-export class ProductListComponent {
+export class ProductListComponent implements OnInit {
   private readonly productService = inject(ProductService);
-  products$!: Observable<Product[]>;
+
+  readonly products = signal<Product[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
-    console.log('[ProductListComponent] Component initialized - fetching products');
-    this.products$ = this.productService.getProducts();
-    this.products$.subscribe({
-      next: (products) => console.log('[ProductListComponent] ✓ Products loaded:', products),
-      error: (err) => console.log('[ProductListComponent] ✗ Failed to load products:', err)
+    this.productService.getProducts().subscribe({
+      next: (list) => {
+        this.products.set(list);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to fetch products');
+        this.loading.set(false);
+      }
     });
   }
 
   deleteProduct(id: number): void {
-    console.log('[ProductListComponent] deleteProduct() called with id:', id);
     if (!confirm('Delete this product?')) {
-      console.log('[ProductListComponent] Delete cancelled by user');
       return;
     }
-    
-    console.log('[ProductListComponent] User confirmed delete - calling productService.deleteProduct()');
+
     this.productService.deleteProduct(id).subscribe({
-      next: () => {
-        console.log('[ProductListComponent] ✓ Product deleted - refreshing list');
-        this.products$ = this.productService.getProducts();
-      },
-      error: (err) => {
-        console.log('[ProductListComponent] ✗ Failed to delete product:', err);
-      }
+      next: () => this.products.update((list) => list.filter((p) => p.id !== id)),
+      error: () => this.error.set('Failed to delete product')
     });
   }
 }

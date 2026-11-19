@@ -1,30 +1,31 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink],
   template: `
     <div class="auth-container">
       <h1>Login</h1>
 
-      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      @if (error()) {
+        <div class="alert alert-error">{{ error() }}</div>
+      }
 
       <form (ngSubmit)="login()" #loginForm="ngForm" class="auth-form">
         <div class="form-group">
           <label for="email">Email</label>
-          <input id="email" name="email" type="email" [(ngModel)]="email" required #emailModel="ngModel" class="form-control" placeholder="Enter email" />
+          <input id="email" name="email" type="email" [(ngModel)]="email" required placeholder="Enter email" />
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" [(ngModel)]="password" required class="form-control" placeholder="Enter password" />
+          <input id="password" name="password" type="password" [(ngModel)]="password" required placeholder="Enter password" />
         </div>
         <div class="form-actions">
-          <button type="submit" [disabled]="submitting || loginForm.invalid" class="btn-primary">
-            {{ submitting ? 'Logging in...' : 'Login' }}
+          <button type="submit" class="btn btn-primary" [disabled]="submitting() || loginForm.invalid">
+            {{ submitting() ? 'Logging in...' : 'Login' }}
           </button>
         </div>
         <p class="auth-link">Don't have an account? <a routerLink="/register">Register</a></p>
@@ -36,32 +37,20 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  email = '';
-  password = '';
-  error: string | null = null;
-  submitting = false;
-
-  ngOnInit(): void {
-    console.log('[LoginComponent] Component initialized');
-  }
+  readonly email = signal('');
+  readonly password = signal('');
+  readonly error = signal<string | null>(null);
+  readonly submitting = signal(false);
 
   login(): void {
-    console.log('[LoginComponent] login() called - email:', this.email);
-    this.submitting = true;
-    this.error = null;
-    console.log('[LoginComponent] submitting = true, error = null');
+    this.submitting.set(true);
+    this.error.set(null);
 
-    console.log('[LoginComponent] Calling auth.login()...');
-    this.auth.login(this.email, this.password).subscribe({
-      next: () => {
-        console.log('[LoginComponent] ✓ login() succeeded - navigating to /products');
-        this.router.navigate(['/products']);
-      },
-      error: (err) => {
-        console.log('[LoginComponent] ✗ login() failed - error:', err);
-        this.error = 'Invalid email or password';
-        this.submitting = false;
-        console.log('[LoginComponent] submitting = false, error displayed');
+    this.auth.login(this.email(), this.password()).subscribe({
+      next: () => this.router.navigate(['/products']),
+      error: () => {
+        this.error.set('Invalid email or password');
+        this.submitting.set(false);
       }
     });
   }

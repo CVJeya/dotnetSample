@@ -1,86 +1,71 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-user-form',
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './user-form.html',
-  styleUrl: './user-form.css'
+  imports: [FormsModule, RouterLink],
+  templateUrl: './user-form.html'
 })
 export class UserForm implements OnInit {
   private readonly userService = inject(UserService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  name = '';
-  email = '';
+  readonly name = signal('');
+  readonly email = signal('');
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal<string | null>(null);
+
   isEditMode = false;
-  userId: number | null = null;
-  loading = false;
-  saving = false;
-  error: string | null = null;
+  private userId: number | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEditMode = true;
-      this.userId = Number(id);
-      this.loadUser(this.userId);
-    }
-  }
+    if (!id) return;
 
-  private loadUser(id: number): void {
-    this.loading = true;
-    this.userService.getUserById(id).subscribe({
+    this.isEditMode = true;
+    this.userId = Number(id);
+    this.loading.set(true);
+
+    this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
-        this.name = user.name;
-        this.email = user.email;
-        this.loading = false;
+        this.name.set(user.name);
+        this.email.set(user.email);
+        this.loading.set(false);
       },
-      error: (err: unknown) => {
-        this.error = 'Failed to load user';
-        this.loading = false;
-        console.error(err);
+      error: () => {
+        this.error.set('Failed to load user');
+        this.loading.set(false);
       }
     });
   }
 
   submit(): void {
-    if (!this.name.trim() || !this.email.trim()) {
-      this.error = 'Name and email are required';
+    const name = this.name().trim();
+    const email = this.email().trim();
+    if (!name || !email) {
+      this.error.set('Name and email are required');
       return;
     }
 
-    this.saving = true;
-    this.error = null;
+    this.saving.set(true);
+    this.error.set(null);
+    const request = { name, email };
 
-    const request = { name: this.name.trim(), email: this.email.trim() };
+    const request$: Observable<unknown> = this.isEditMode
+      ? this.userService.updateUser(this.userId!, request)
+      : this.userService.createUser(request);
 
-    if (this.isEditMode && this.userId) {
-      this.userService.updateUser(this.userId, request).subscribe({
-        next: () => {
-          this.router.navigate(['/']);
-        },
-        error: (err: unknown) => {
-          this.error = 'Failed to update user';
-          this.saving = false;
-          console.error(err);
-        }
-      });
-    } else {
-      this.userService.createUser(request).subscribe({
-        next: () => {
-          this.router.navigate(['/']);
-        },
-        error: (err: unknown) => {
-          this.error = 'Failed to create user';
-          this.saving = false;
-          console.error(err);
-        }
-      });
-    }
+    request$.subscribe({
+      next: () => this.router.navigate(['/users']),
+      error: () => {
+        this.error.set(this.isEditMode ? 'Failed to update user' : 'Failed to create user');
+        this.saving.set(false);
+      }
+    });
   }
 }
