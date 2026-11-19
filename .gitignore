@@ -5,6 +5,7 @@
 .vscode/
 *.user
 *.suo
+_redirects
 
 ## Build results
 [Bb]in/
