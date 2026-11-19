@@ -1,14 +1,16 @@
+import { getAuthHeaders } from '../auth/authAPI';
+
 const BASE_URL = '/api/users';
 
 export const usersAPI = {
   async getAll() {
-    const response = await fetch(BASE_URL);
+    const response = await fetch(BASE_URL, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch users');
     return response.json();
   },
 
   async getById(id) {
-    const response = await fetch(`${BASE_URL}/${id}`);
+    const response = await fetch(`${BASE_URL}/${id}`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch user');
     return response.json();
   },
@@ -16,7 +18,7 @@ export const usersAPI = {
   async create(user) {
     const response = await fetch(BASE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(user),
     });
     if (!response.ok) throw new Error('Failed to create user');
@@ -26,7 +28,7 @@ export const usersAPI = {
   async update(id, user) {
     const response = await fetch(`${BASE_URL}/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(user),
     });
     if (!response.ok) throw new Error('Failed to update user');
@@ -35,6 +37,7 @@ export const usersAPI = {
   async delete(id) {
     const response = await fetch(`${BASE_URL}/${id}`, {
       method: 'DELETE',
+      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete user');
   },
