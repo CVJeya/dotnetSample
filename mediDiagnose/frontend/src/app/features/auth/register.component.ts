@@ -43,6 +43,12 @@ export class RegisterComponent {
   protected readonly profileIncomplete = signal(false);
   protected readonly error = signal<string | null>(null);
 
+  constructor() {
+    this.profileIncomplete.set(
+      this.auth.isAuthenticated() && this.auth.hasPendingProfile(),
+    );
+  }
+
   protected submit(): void {
     if (this.form.invalid || this.submitting()) {
       this.form.markAllAsTouched();

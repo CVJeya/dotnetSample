@@ -46,7 +46,12 @@ export class LoginComponent {
       next: (session) => {
         this.submitting.set(false);
         const requestedUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        const fallbackUrl = session.role === 'Patient' ? '/appointments' : '/staff';
+        const fallbackUrl =
+          session.role === 'Patient'
+            ? '/appointments'
+            : session.role === 'Admin'
+              ? '/admin/appointments'
+              : '/doctor/appointments';
         const destination =
           requestedUrl?.startsWith('/') && !requestedUrl.startsWith('//')
             ? requestedUrl

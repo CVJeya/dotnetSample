@@ -88,6 +88,13 @@
   color: var(--teal-dark);
 }
 
+.visit-time .time-zone-label {
+  margin-left: 6px;
+  color: #82918e;
+  font-size: 10px;
+  font-weight: 500;
+}
+
 .request-note {
   display: flex;
   align-items: flex-start;

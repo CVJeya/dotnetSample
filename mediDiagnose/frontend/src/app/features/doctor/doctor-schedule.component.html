@@ -1,0 +1,93 @@
+<section class="staff-page">
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">DOCTOR WORKSPACE</span>
+      <h1>My schedule</h1>
+      <p>Set your available days, morning and evening hours, and appointment length in hospital local time.</p>
+    </div>
+    <a class="button button-outline" routerLink="/doctor/appointments">View my appointments <span aria-hidden="true">→</span></a>
+  </div>
+
+  @if (notice()) {
+    <div class="notice notice-success" role="status">{{ notice() }}</div>
+  }
+  @if (error()) {
+    <div class="notice notice-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state" role="status">Loading your schedule…</div>
+  } @else {
+    <section class="schedule-panel">
+      <div class="schedule-intro">
+        <div>
+          <h2>Weekly availability</h2>
+          <p>Only future availability changes. Existing appointments are kept as booked.</p>
+        </div>
+        <span class="capacity-tag">Up to 20 patients per shift</span>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="saveSchedule()">
+        <div class="schedule-table" formArrayName="shifts">
+          <div class="schedule-header">
+            <span>Day</span>
+            <span>Shift</span>
+            <span>Starts</span>
+            <span>Ends</span>
+            <span>Minutes / visit</span>
+            <span class="visually-hidden">Actions</span>
+          </div>
+          @for (shift of shifts.controls; track $index; let i = $index) {
+            <div class="shift-row" [formGroupName]="i">
+              <label>
+                <span class="visually-hidden">Day of week</span>
+                <select formControlName="dayOfWeek">
+                  @for (day of days; track $index; let dayIndex = $index) {
+                    <option [ngValue]="dayIndex">{{ day }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span class="visually-hidden">Shift</span>
+                <select formControlName="shift">
+                  <option value="Morning">Morning</option>
+                  <option value="Evening">Evening</option>
+                </select>
+              </label>
+              <label>
+                <span class="visually-hidden">Start time</span>
+                <input type="time" formControlName="startTime" />
+              </label>
+              <label>
+                <span class="visually-hidden">End time</span>
+                <input type="time" formControlName="endTime" />
+              </label>
+              <label>
+                <span class="visually-hidden">Appointment duration in minutes</span>
+                <input type="number" min="1" max="1440" formControlName="appointmentDurationMinutes" />
+              </label>
+              <button
+                class="remove-button"
+                type="button"
+                [attr.aria-label]="'Remove ' + days[shift.controls.dayOfWeek.value] + ' ' + shift.controls.shift.value + ' shift'"
+                (click)="removeShift(i)"
+              >
+                ×
+              </button>
+            </div>
+          }
+          @if (shifts.length === 0) {
+            <div class="no-shifts">No shifts set. Add a shift to publish appointment times.</div>
+          }
+        </div>
+
+        <div class="schedule-actions">
+          <button class="button button-outline" type="button" (click)="addShift()">+ Add shift</button>
+          <button class="button button-primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Save schedule' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+</section>

@@ -73,6 +73,10 @@ export class AuthService {
     return this.currentSession()?.accessToken ?? null;
   }
 
+  hasPendingProfile(): boolean {
+    return this.readPendingProfile() !== null;
+  }
+
   logout(): void {
     sessionStorage.removeItem(SESSION_KEY);
     this.clearPendingProfile();

@@ -26,7 +26,8 @@
           @if (startsAt) {
             <p class="visit-time">
               <span aria-hidden="true">◷</span>
-              {{ startsAt | date: 'EEEE, MMMM d, y · h:mm a' }}
+              {{ startsAt | date: 'EEEE, MMMM d, y · h:mm a': timezoneOffset(startsAt) }}
+              <span class="time-zone-label">Hospital local time</span>
             </p>
           }
         </div>

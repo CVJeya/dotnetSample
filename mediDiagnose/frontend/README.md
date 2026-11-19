@@ -1,6 +1,6 @@
 # MediDiagnose patient PWA
 
-The Angular 22 application supports patient registration, doctor browsing, appointment requests, and appointment status tracking. It uses the ASP.NET API gateway at `/api`.
+The Angular 22 application supports patient registration, doctor browsing, appointment requests, and appointment status tracking. Hospital admins can manage doctor and patient profiles and approve or decline requests; doctors can maintain their weekly schedules and view appointments for their own patients. It uses the ASP.NET API gateway at `/api`.
 
 ## Run locally
 
@@ -11,7 +11,9 @@ npm install
 npm start
 ```
 
-Open `http://localhost:4200`. Create a patient account, then browse a doctor and select an available time. Pending requests reserve shift capacity and must be approved by hospital staff.
+Open `http://localhost:4200`. Create a patient account, then browse a doctor and select an available time. Appointment times are displayed in the offset returned by the hospital schedule. Pending requests reserve shift capacity and must be approved by hospital staff.
+
+Bootstrap the first Admin account using the backend instructions. Admins can create Doctor accounts and their Directory profiles from the Doctors workspace; doctors can then sign in to set their shifts and review their appointments.
 
 ## Test and build
 

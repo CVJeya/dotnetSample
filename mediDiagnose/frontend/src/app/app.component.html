@@ -9,6 +9,16 @@
         <a routerLink="/doctors" routerLinkActive="active">Find a doctor</a>
         @if (auth.session()?.role === 'Patient') {
           <a routerLink="/appointments" routerLinkActive="active">My appointments</a>
+          @if (auth.hasPendingProfile()) {
+            <a routerLink="/register" routerLinkActive="active">Finish profile</a>
+          }
+        } @else if (auth.session()?.role === 'Admin') {
+          <a routerLink="/admin/appointments" routerLinkActive="active">Requests</a>
+          <a routerLink="/admin/doctors" routerLinkActive="active">Doctors</a>
+          <a routerLink="/admin/patients" routerLinkActive="active">Patients</a>
+        } @else if (auth.session()?.role === 'Doctor') {
+          <a routerLink="/doctor/schedule" routerLinkActive="active">My schedule</a>
+          <a routerLink="/doctor/appointments" routerLinkActive="active">Appointments</a>
         }
       </nav>
       <div class="account-nav">

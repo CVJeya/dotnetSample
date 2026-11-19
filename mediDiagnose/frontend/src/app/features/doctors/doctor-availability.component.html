@@ -66,7 +66,7 @@
     } @else {
       <div class="slots-heading">
         <h3>Available times</h3>
-        <span>{{ slots().length }} time{{ slots().length === 1 ? '' : 's' }}</span>
+        <span>Hospital local time · {{ slots().length }} time{{ slots().length === 1 ? '' : 's' }}</span>
       </div>
       <div class="slot-grid">
         @for (slot of slots(); track slot.startsAt) {
@@ -75,8 +75,8 @@
             [routerLink]="['/doctors', doctorId, 'book']"
             [queryParams]="{ startsAt: slot.startsAt }"
           >
-            <span class="slot-time">{{ slot.startsAt | date: 'h:mm a' }}</span>
-            <span class="slot-end">until {{ slot.endsAt | date: 'h:mm a' }}</span>
+            <span class="slot-time">{{ slot.startsAt | date: 'h:mm a': timezoneOffset(slot.startsAt) }}</span>
+            <span class="slot-end">until {{ slot.endsAt | date: 'h:mm a': timezoneOffset(slot.endsAt) }}</span>
             <span class="slot-arrow" aria-hidden="true">→</span>
           </a>
         }

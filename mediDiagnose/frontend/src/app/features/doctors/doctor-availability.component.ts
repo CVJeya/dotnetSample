@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DoctorService } from '../../core/api/doctor.service';
 import { apiErrorMessage } from '../../core/api/api-error-message';
+import { appointmentTimezoneOffset } from '../../core/api/appointment-timezone';
 import {
   AppointmentSlot,
   DoctorProfile,
@@ -26,6 +27,7 @@ export class DoctorAvailabilityComponent {
   protected readonly loadingSlots = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly slotsError = signal<string | null>(null);
+  protected readonly timezoneOffset = appointmentTimezoneOffset;
   protected dateValue = localDateToday();
   protected shiftValue: 'Morning' | 'Evening' = 'Morning';
 

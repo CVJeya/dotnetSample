@@ -29,6 +29,26 @@ export interface DoctorProfile {
   biography: string;
 }
 
+export interface AdminDoctorProfile extends DoctorProfile {
+  userId: string;
+  isActive: boolean;
+}
+
+export interface DoctorAccount {
+  userId: string;
+  name: string;
+  email: string;
+  role: 'Doctor';
+}
+
+export interface DoctorShift {
+  dayOfWeek: number;
+  shift: 'Morning' | 'Evening';
+  startTime: string;
+  endTime: string;
+  appointmentDurationMinutes: number;
+}
+
 export interface AppointmentSlot {
   startsAt: string;
   endsAt: string;
@@ -44,6 +64,16 @@ export interface Appointment {
   endsAt: string;
   shift: 'Morning' | 'Evening';
   status: AppointmentStatus;
+}
+
+export interface StaffAppointment extends Appointment {
+  patientName: string;
+  patientEmail: string;
+  patientPhoneNumber: string;
+}
+
+export interface AdminPatientProfile extends PatientProfile {
+  isActive: boolean;
 }
 
 export interface AppointmentRequest {

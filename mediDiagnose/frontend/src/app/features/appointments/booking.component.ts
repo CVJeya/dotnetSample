@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { AppointmentService } from '../../core/api/appointment.service';
 import { DoctorService } from '../../core/api/doctor.service';
 import { apiErrorMessage } from '../../core/api/api-error-message';
+import { appointmentTimezoneOffset } from '../../core/api/appointment-timezone';
 import { Appointment, DoctorProfile } from '../../core/models/api.models';
 
 @Component({
@@ -25,6 +26,7 @@ export class BookingComponent {
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly timezoneOffset = appointmentTimezoneOffset;
 
   constructor() {
     if (!this.doctorId || !this.startsAt) {

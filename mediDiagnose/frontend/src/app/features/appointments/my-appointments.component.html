@@ -28,9 +28,9 @@
       @for (appointment of appointments(); track appointment.id) {
         <article class="appointment-card">
           <div class="date-block">
-            <span>{{ appointment.startsAt | date: 'MMM' }}</span>
-            <strong>{{ appointment.startsAt | date: 'd' }}</strong>
-            <span>{{ appointment.startsAt | date: 'EEE' }}</span>
+            <span>{{ appointment.startsAt | date: 'MMM': timezoneOffset(appointment.startsAt) }}</span>
+            <strong>{{ appointment.startsAt | date: 'd': timezoneOffset(appointment.startsAt) }}</strong>
+            <span>{{ appointment.startsAt | date: 'EEE': timezoneOffset(appointment.startsAt) }}</span>
           </div>
           <div class="appointment-details">
             <div class="detail-title">
@@ -44,9 +44,10 @@
               </span>
             </div>
             <p class="appointment-time">
-              {{ appointment.startsAt | date: 'EEEE, MMMM d, y' }}
+              {{ appointment.startsAt | date: 'EEEE, MMMM d, y': timezoneOffset(appointment.startsAt) }}
               <span aria-hidden="true">·</span>
-              {{ appointment.startsAt | date: 'h:mm a' }}
+              {{ appointment.startsAt | date: 'h:mm a': timezoneOffset(appointment.startsAt) }}
+              <span class="time-zone-label">Hospital local time</span>
             </p>
             <p class="appointment-shift">{{ appointment.shift }} appointment</p>
             @if (appointment.status === 'Pending') {

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { AppointmentService } from '../../core/api/appointment.service';
 import { apiErrorMessage } from '../../core/api/api-error-message';
+import { appointmentTimezoneOffset } from '../../core/api/appointment-timezone';
 import { Appointment } from '../../core/models/api.models';
 
 @Component({
@@ -17,6 +18,7 @@ export class MyAppointmentsComponent {
   protected readonly appointments = signal<Appointment[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly timezoneOffset = appointmentTimezoneOffset;
 
   constructor() {
     this.loadAppointments();
