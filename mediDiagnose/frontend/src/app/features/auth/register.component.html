@@ -1,0 +1,92 @@
+<section class="auth-layout">
+  <div class="auth-card">
+    <span class="eyebrow">WELCOME TO MEDIDIAGNOSE</span>
+    <h1>Create your account</h1>
+    <p class="auth-intro">A few details are all we need to help you book your care.</p>
+
+    @if (profileIncomplete()) {
+      <div class="notice notice-warning" role="alert">
+        <strong>Your account is ready, but your patient profile is incomplete.</strong>
+        <span>We couldn’t save your contact details. Retry to finish setting up appointments.</span>
+      </div>
+      @if (error()) {
+        <div class="form-error" role="alert">{{ error() }}</div>
+      }
+      <button
+        class="button button-primary auth-submit"
+        type="button"
+        [disabled]="retrying()"
+        (click)="retryProfileCompletion()"
+      >
+        {{ retrying() ? 'Saving profile…' : 'Retry profile setup' }}
+      </button>
+    } @else {
+      @if (error()) {
+        <div class="form-error" role="alert">{{ error() }}</div>
+      }
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label class="form-field">
+          <span>Full name</span>
+          <input formControlName="name" autocomplete="name" placeholder="e.g. Avery Patient" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <small>Enter your name (up to 100 characters).</small>
+          }
+        </label>
+
+        <label class="form-field">
+          <span>Email address</span>
+          <input
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            placeholder="you@example.com"
+          />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <small>Enter a valid email address.</small>
+          }
+        </label>
+
+        <label class="form-field">
+          <span>Phone number <em>Optional</em></span>
+          <input
+            type="tel"
+            formControlName="phoneNumber"
+            autocomplete="tel"
+            placeholder="Your contact number"
+          />
+        </label>
+
+        <label class="form-field">
+          <span>Password</span>
+          <input
+            type="password"
+            formControlName="password"
+            autocomplete="new-password"
+            placeholder="At least 8 characters"
+          />
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <small>Password must be at least 8 characters.</small>
+          }
+        </label>
+
+        <button class="button button-primary auth-submit" type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Creating account…' : 'Create patient account' }}
+        </button>
+      </form>
+    }
+
+    <p class="auth-switch">Already have an account? <a routerLink="/login">Sign in</a></p>
+    <p class="privacy-copy">Your information is used to manage your account and appointment requests.</p>
+  </div>
+
+  <aside class="auth-aside">
+    <span class="aside-mark" aria-hidden="true">+</span>
+    <h2>Make room for better care.</h2>
+    <p>Find a doctor, choose a time that works, and keep every appointment request in one place.</p>
+    <div class="aside-steps">
+      <div><span>01</span> Browse trusted doctors</div>
+      <div><span>02</span> Choose an available time</div>
+      <div><span>03</span> Follow your request</div>
+    </div>
+  </aside>
+</section>

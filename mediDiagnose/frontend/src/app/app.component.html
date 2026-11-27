@@ -1,0 +1,54 @@
+<div class="app-frame">
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" routerLink="/doctors" aria-label="MediDiagnose home">
+        <span class="brand-mark" aria-hidden="true">+</span>
+        <span>MediDiagnose</span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a routerLink="/doctors" routerLinkActive="active">Find a doctor</a>
+        @if (auth.session()?.role === 'Patient') {
+          <a routerLink="/appointments" routerLinkActive="active">My appointments</a>
+          @if (auth.hasPendingProfile()) {
+            <a routerLink="/register" routerLinkActive="active">Finish profile</a>
+          }
+        } @else if (auth.session()?.role === 'Admin') {
+          <a routerLink="/admin/appointments" routerLinkActive="active">Requests</a>
+          <a routerLink="/admin/doctors" routerLinkActive="active">Doctors</a>
+          <a routerLink="/admin/patients" routerLinkActive="active">Patients</a>
+        } @else if (auth.session()?.role === 'Doctor') {
+          <a routerLink="/doctor/schedule" routerLinkActive="active">My schedule</a>
+          <a routerLink="/doctor/appointments" routerLinkActive="active">Appointments</a>
+        }
+      </nav>
+      <div class="account-nav">
+        @if (auth.session(); as session) {
+          <span class="welcome">Hello, {{ session.role }}</span>
+          <button class="button button-outline button-small" type="button" (click)="signOut()">
+            Sign out
+          </button>
+        } @else {
+          <a class="sign-in-link" routerLink="/login">Sign in</a>
+          <a class="button button-primary button-small" routerLink="/register">Create account</a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="page-content">
+    @if (apiNotice.notice(); as notice) {
+      <div class="global-notice" role="alert">
+        <span>{{ notice }}</span>
+        <button type="button" aria-label="Dismiss message" (click)="apiNotice.clear()">×</button>
+      </div>
+    }
+    <router-outlet />
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand"><span class="brand-mark" aria-hidden="true">+</span> MediDiagnose</span>
+      <span>Appointments made with care.</span>
+    </div>
+  </footer>
+</div>

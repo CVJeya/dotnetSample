@@ -1,0 +1,86 @@
+<a class="back-link" routerLink="/doctors"><span aria-hidden="true">←</span> All doctors</a>
+
+@if (loadingDoctor()) {
+  <div class="loading-state" role="status">Loading doctor profile…</div>
+} @else if (error()) {
+  <div class="empty-state" role="alert">
+    <h2>Doctor unavailable</h2>
+    <p>{{ error() }}</p>
+  </div>
+} @else if (doctor(); as profile) {
+  <section class="doctor-profile">
+    <div class="profile-avatar" aria-hidden="true">{{ profile.name.charAt(0) }}</div>
+    <div class="profile-copy">
+      <span class="eyebrow">{{ profile.specialty }}</span>
+      <h1>{{ profile.name }}</h1>
+      <p>{{ profile.biography || 'Committed to thoughtful, personal care.' }}</p>
+      <span class="profile-note">Taking appointment requests</span>
+    </div>
+  </section>
+
+  <section class="availability-panel">
+    <div class="panel-heading">
+      <div>
+        <span class="eyebrow">BOOK A VISIT</span>
+        <h2>Choose a time</h2>
+        <p>Available times are based on this doctor’s schedule.</p>
+      </div>
+      <div class="capacity-note"><span aria-hidden="true">●</span> Limited places per shift</div>
+    </div>
+
+    <form class="availability-form" (ngSubmit)="findSlots()">
+      <label class="field">
+        <span>Date</span>
+        <input
+          type="date"
+          name="appointmentDate"
+          [min]="dateValue"
+          [(ngModel)]="dateValue"
+          required
+        />
+      </label>
+      <label class="field">
+        <span>Shift</span>
+        <select name="appointmentShift" [(ngModel)]="shiftValue">
+          <option value="Morning">Morning</option>
+          <option value="Evening">Evening</option>
+        </select>
+      </label>
+      <button class="button button-primary search-button" type="submit" [disabled]="loadingSlots()">
+        {{ loadingSlots() ? 'Checking…' : 'Find available times' }}
+      </button>
+    </form>
+
+    @if (slotsError()) {
+      <div class="inline-error" role="alert">{{ slotsError() }}</div>
+    } @else if (loadingSlots()) {
+      <div class="loading-state compact" role="status">Checking available times…</div>
+    } @else if (slots().length === 0) {
+      <div class="no-slots">
+        <span class="calendar-icon" aria-hidden="true">□</span>
+        <div>
+          <strong>No times available for this shift</strong>
+          <p>Try another date or shift to see more options.</p>
+        </div>
+      </div>
+    } @else {
+      <div class="slots-heading">
+        <h3>Available times</h3>
+        <span>Hospital local time · {{ slots().length }} time{{ slots().length === 1 ? '' : 's' }}</span>
+      </div>
+      <div class="slot-grid">
+        @for (slot of slots(); track slot.startsAt) {
+          <a
+            class="slot-card"
+            [routerLink]="['/doctors', doctorId, 'book']"
+            [queryParams]="{ startsAt: slot.startsAt }"
+          >
+            <span class="slot-time">{{ slot.startsAt | date: 'h:mm a': timezoneOffset(slot.startsAt) }}</span>
+            <span class="slot-end">until {{ slot.endsAt | date: 'h:mm a': timezoneOffset(slot.endsAt) }}</span>
+            <span class="slot-arrow" aria-hidden="true">→</span>
+          </a>
+        }
+      </div>
+    }
+  </section>
+}

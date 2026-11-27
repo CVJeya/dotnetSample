@@ -1,0 +1,143 @@
+:root {
+  color-scheme: light;
+  --ink: #203331;
+  --muted: #748581;
+  --line: #e2eae7;
+  --teal: #0f766e;
+  --teal-dark: #0d5f59;
+  --page: #f6f8f7;
+  font-family: Inter, 'Segoe UI', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--page);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: Inter, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.3);
+  outline-offset: 3px;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 43px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 17px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.button-primary {
+  background: var(--teal);
+  color: #fff;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: #0b625c;
+}
+
+.button-outline {
+  border-color: #cfddda;
+  background: #fff;
+  color: #38514e;
+}
+
+.button-outline:hover:not(:disabled) {
+  border-color: #9cbdb4;
+  background: #f7fbf9;
+}
+
+.button-small {
+  min-height: 37px;
+  padding: 0 13px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.visually-hidden {
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.loading-state,
+.empty-state {
+  padding: 46px 24px;
+  border: 1px dashed #cbd9d5;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-state h2,
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+
+.empty-state p {
+  margin: 0 0 18px;
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

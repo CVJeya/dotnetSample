@@ -145,12 +145,15 @@ git commit -m "feat: add patient authentication"
 
 **Interfaces:**
 - Consumes: `sub` and `role` claims from Task 2.
+- Produces: public `GET /api/doctors` and `GET /api/doctors/{doctorId}`; patient-owned `GET/PUT /api/patients/me`; admin-only `POST /api/admin/doctors`, `PUT /api/admin/doctors/{doctorId}`, and `PUT /api/admin/patients/{patientId}`; doctor-owned `GET/PUT /api/doctors/me/shifts`.
 - Produces: public `GET /api/doctors` and `GET /api/doctors/{doctorId}`; patient-owned `GET/PUT /api/patients/me`; admin-only `POST /api/admin/doctors`, `PUT /api/admin/doctors/{doctorId}`, `POST /api/admin/patients`, and `PUT /api/admin/patients/{patientId}`; doctor-owned `GET/PUT /api/doctors/me/shifts`.
 - Admins deactivate profiles with `isActive=false`; do not hard-delete profiles or appointment history.
 - `PUT /api/patients/me` creates or updates the profile for the authenticated patient. The Angular registration flow calls it after successful Identity registration and makes profile completion retryable if the Directory request fails.
 - Doctor profiles store the Identity `userId` as an external identifier; do not create cross-service database foreign keys.
 - Admin doctor creation stores the Identity account ID in the Directory profile after the Identity service creates the Doctor account.
 - A shift contains weekday, `Morning` or `Evening`, local start and end times, and appointment duration in minutes.
+- Produces internal `GET /internal/doctors/{doctorId}/shifts?date=YYYY-MM-DD`, `GET /internal/doctors/by-user/{userId}`, and `GET /internal/patients/{patientId}` for the Appointments service. All internal routes require the `X-Internal-Service-Key` header, configured by `InternalServices__ApiKey` and compared in constant time. Do not include patient profile data in public doctor responses.
+- Patient profile creation is available only through the authenticated patient's `PUT /api/patients/me`; admins may list, update, and deactivate those profiles but cannot create a profile without a verified Identity account.
 - Produces internal `GET /internal/doctors/{doctorId}/shifts?date=YYYY-MM-DD` for the Appointments service. Do not include patient profile data in public doctor responses.
 
 - [ ] **Step 1: Write failing tests** for public doctor browsing, exclusion of private patient data, admin-only profile management, profile deactivation without deleting appointment history, patient ownership of `/patients/me`, Doctor account/profile linkage, and doctor ownership of shift updates.

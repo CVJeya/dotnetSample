@@ -1,0 +1,49 @@
+<section class="staff-page">
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">DOCTOR WORKSPACE</span>
+      <h1>My appointments</h1>
+      <p>Patients and visit details for your own schedule.</p>
+    </div>
+    <a class="button button-outline" routerLink="/doctor/schedule">Edit schedule</a>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state" role="status">Loading your appointments…</div>
+  } @else if (error()) {
+    <div class="empty-state" role="alert">
+      <h2>Appointments unavailable</h2>
+      <p>{{ error() }}</p>
+      <button class="button button-outline" type="button" (click)="loadAppointments()">Try again</button>
+    </div>
+  } @else if (appointments().length === 0) {
+    <div class="empty-state">
+      <h2>No appointments yet</h2>
+      <p>Approved and pending requests for your schedule will appear here.</p>
+    </div>
+  } @else {
+    <div class="appointment-list">
+      @for (appointment of appointments(); track appointment.id) {
+        <article class="appointment-card">
+          <div class="patient-avatar" aria-hidden="true">{{ appointment.patientName.charAt(0) }}</div>
+          <div class="appointment-main">
+            <div class="appointment-heading">
+              <div>
+                <h2>{{ appointment.patientName }}</h2>
+                <p>{{ appointment.patientEmail }}</p>
+              </div>
+              <span class="status-badge" [attr.data-status]="appointment.status">{{ appointment.status }}</span>
+            </div>
+            <div class="visit-info">
+              <span>{{ appointment.startsAt | date: 'EEEE, MMMM d, y · h:mm a': timezoneOffset(appointment.startsAt) }} · Hospital local time</span>
+              <span>{{ appointment.shift }} shift</span>
+              @if (appointment.patientPhoneNumber) {
+                <a [href]="'tel:' + appointment.patientPhoneNumber">{{ appointment.patientPhoneNumber }}</a>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

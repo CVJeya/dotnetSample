@@ -1,0 +1,84 @@
+<section class="staff-page">
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">ADMIN WORKSPACE</span>
+      <h1>Manage patients</h1>
+      <p>Update contact profiles or deactivate them while preserving appointment history.</p>
+    </div>
+  </div>
+
+  @if (notice()) {
+    <div class="notice notice-success" role="status">{{ notice() }}</div>
+  }
+  @if (error()) {
+    <div class="notice notice-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state" role="status">Loading patient profiles…</div>
+  } @else if (patients().length === 0) {
+    <div class="empty-state">
+      <h2>No active patient profiles</h2>
+      <p>Patient profiles created through registration will appear here.</p>
+    </div>
+  } @else {
+    <div class="patient-list">
+      @for (patient of patients(); track patient.userId) {
+        <article class="patient-card">
+          @if (editingPatientId() === patient.userId) {
+            <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit(patient)" novalidate>
+              <label class="form-field">
+                <span>Full name</span>
+                <input formControlName="name" autocomplete="name" />
+                @if (editForm.controls.name.touched && editForm.controls.name.invalid) {
+                  <small>Enter a name (up to 100 characters).</small>
+                }
+              </label>
+              <label class="form-field">
+                <span>Email address</span>
+                <input type="email" formControlName="email" autocomplete="email" />
+                @if (editForm.controls.email.touched && editForm.controls.email.invalid) {
+                  <small>Enter a valid email address.</small>
+                }
+              </label>
+              <label class="form-field">
+                <span>Phone number</span>
+                <input type="tel" formControlName="phoneNumber" autocomplete="tel" />
+              </label>
+              <div class="row-actions">
+                <button class="button button-outline" type="button" (click)="editingPatientId.set(null)">Cancel</button>
+                <button class="button button-primary" type="submit" [disabled]="saving()">Save profile</button>
+              </div>
+            </form>
+          } @else {
+            <div class="patient-avatar" aria-hidden="true">{{ patient.name.charAt(0) }}</div>
+            <div class="patient-copy">
+              <h2>{{ patient.name }}</h2>
+              <p>{{ patient.email }}</p>
+              <span>{{ patient.phoneNumber || 'No phone number provided' }}</span>
+            </div>
+            <div class="row-actions">
+              <button
+                class="button button-outline"
+                type="button"
+                aria-label="Edit patient"
+                (click)="beginEdit(patient)"
+              >
+                Edit
+              </button>
+              <button
+                class="button button-danger"
+                type="button"
+                aria-label="Deactivate patient"
+                [disabled]="saving()"
+                (click)="deactivatePatient(patient)"
+              >
+                Deactivate
+              </button>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

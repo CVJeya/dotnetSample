@@ -1,0 +1,66 @@
+<a class="back-link" [routerLink]="['/doctors', doctorId]"><span aria-hidden="true">←</span> Change time</a>
+
+<section class="booking-layout">
+  <div class="booking-main">
+    <span class="eyebrow">APPOINTMENT REQUEST</span>
+    <h1>Review your visit</h1>
+    <p class="intro">Confirm the details below. The hospital team will review your request.</p>
+
+    @if (loading()) {
+      <div class="loading-state" role="status">Loading appointment details…</div>
+    } @else if (appointment(); as booked) {
+      <div class="success-panel" role="status">
+        <span class="success-icon" aria-hidden="true">✓</span>
+        <div>
+          <h2>Your request has been sent</h2>
+          <p>It is now <strong>{{ booked.status }}</strong>. You can follow its progress in My appointments.</p>
+        </div>
+      </div>
+      <a class="button button-primary" routerLink="/appointments">View my appointments</a>
+    } @else if (doctor(); as profile) {
+      <article class="visit-card">
+        <div class="doctor-avatar" aria-hidden="true">{{ profile.name.charAt(0) }}</div>
+        <div>
+          <span class="eyebrow">{{ profile.specialty }}</span>
+          <h2>{{ profile.name }}</h2>
+          @if (startsAt) {
+            <p class="visit-time">
+              <span aria-hidden="true">◷</span>
+              {{ startsAt | date: 'EEEE, MMMM d, y · h:mm a': timezoneOffset(startsAt) }}
+              <span class="time-zone-label">Hospital local time</span>
+            </p>
+          }
+        </div>
+      </article>
+
+      <div class="request-note">
+        <span class="note-icon" aria-hidden="true">i</span>
+        <p>Your time is reserved while the hospital reviews your request. You’ll see the decision here and in My appointments.</p>
+      </div>
+
+      @if (error()) {
+        <div class="inline-error" role="alert">{{ error() }}</div>
+      }
+
+      <button
+        class="button button-primary confirm-button"
+        type="button"
+        [disabled]="submitting()"
+        (click)="requestAppointment()"
+      >
+        {{ submitting() ? 'Sending request…' : 'Request this appointment' }}
+      </button>
+    } @else {
+      <div class="inline-error" role="alert">{{ error() }}</div>
+      <a class="button button-outline" routerLink="/doctors">Browse doctors</a>
+    }
+  </div>
+
+  <aside class="booking-aside">
+    <span class="aside-icon" aria-hidden="true">+</span>
+    <h2>One more step</h2>
+    <p>Your appointment will be confirmed once the hospital team approves your request.</p>
+    <div class="aside-divider"></div>
+    <p class="privacy-note">Your appointment details are only shared with the care team responsible for your visit.</p>
+  </aside>
+</section>

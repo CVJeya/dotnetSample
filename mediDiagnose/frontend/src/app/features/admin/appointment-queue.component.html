@@ -1,0 +1,84 @@
+<section class="staff-page">
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">ADMIN WORKSPACE</span>
+      <h1>Appointment requests</h1>
+      <p>Review and decide requests from patients.</p>
+    </div>
+    <label class="filter-field">
+      <span>Show</span>
+      <select [value]="status()" (change)="changeStatus($event)">
+        <option value="Pending">Pending</option>
+        <option value="Approved">Approved</option>
+        <option value="Declined">Declined</option>
+      </select>
+    </label>
+  </div>
+
+  @if (notice()) {
+    <div class="notice notice-success" role="status">{{ notice() }}</div>
+  }
+  @if (error()) {
+    <div class="notice notice-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state" role="status">Loading appointment requests…</div>
+  } @else if (appointments().length === 0) {
+    <div class="empty-state">
+      <h2>No {{ status().toLowerCase() }} requests</h2>
+      <p>Requests matching this status will appear here.</p>
+    </div>
+  } @else {
+    <div class="request-list">
+      @for (appointment of appointments(); track appointment.id) {
+        <article class="request-card">
+          <div class="request-main">
+            <div class="request-date">
+              <span>{{ appointment.startsAt | date: 'MMM': timezoneOffset(appointment.startsAt) }}</span>
+              <strong>{{ appointment.startsAt | date: 'd': timezoneOffset(appointment.startsAt) }}</strong>
+              <span>{{ appointment.startsAt | date: 'EEE': timezoneOffset(appointment.startsAt) }}</span>
+            </div>
+            <div class="request-details">
+              <div class="request-title">
+                <div>
+                  <h2>{{ appointment.patientName }}</h2>
+                  <p>{{ appointment.patientEmail }} <span aria-hidden="true">·</span> {{ appointment.patientPhoneNumber || 'No phone provided' }}</p>
+                  <p class="doctor-name">{{ appointment.doctorName }}</p>
+                </div>
+                <span class="status-badge" [attr.data-status]="appointment.status">{{ appointment.status }}</span>
+              </div>
+              <div class="visit-detail">
+                <strong>{{ appointment.startsAt | date: 'EEEE, MMMM d, y · h:mm a': timezoneOffset(appointment.startsAt) }}</strong>
+                <span>Hospital local time · {{ appointment.shift }} shift</span>
+              </div>
+              <span class="request-id">Request {{ appointment.id.slice(0, 8) }}</span>
+            </div>
+          </div>
+          @if (appointment.status === 'Pending') {
+            <div class="request-actions">
+              <button
+                class="button button-outline"
+                type="button"
+                aria-label="Decline appointment"
+                [disabled]="decidingId() === appointment.id"
+                (click)="decide(appointment, 'decline')"
+              >
+                Decline
+              </button>
+              <button
+                class="button button-primary"
+                type="button"
+                aria-label="Approve appointment"
+                [disabled]="decidingId() === appointment.id"
+                (click)="decide(appointment, 'approve')"
+              >
+                {{ decidingId() === appointment.id ? 'Saving…' : 'Approve' }}
+              </button>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>
