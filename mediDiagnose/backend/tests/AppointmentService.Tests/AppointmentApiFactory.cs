@@ -22,6 +22,7 @@ public sealed class AppointmentApiFactory : WebApplicationFactory<Program>
     public const string JwtKey = "appointments-test-secret-key-that-is-at-least-32-characters";
     public static readonly DateOnly TestDate = new(2026, 11, 23);
     public TestDirectoryClient Directory { get; } = new();
+    public string HospitalTimeZoneId { get; set; } = "UTC";
     private readonly string _databaseName = $"appointments-tests-{Guid.NewGuid():N}";
     private SqliteConnection? _keepAlive;
 
@@ -30,11 +31,11 @@ public sealed class AppointmentApiFactory : WebApplicationFactory<Program>
         _keepAlive = new SqliteConnection($"Data Source={_databaseName};Mode=Memory;Cache=Shared");
         _keepAlive.Open();
 
-        builder.UseSetting("DB_URL", "Host=localhost;Database=appointments-tests;Username=test;Password=test");
+        builder.UseSetting("LOCAL_DB_URL", "Host=localhost;Database=appointments-tests;Username=test;Password=test");
         builder.UseSetting("Jwt:Key", JwtKey);
         builder.UseSetting("Jwt:Issuer", "MediDiagnose");
         builder.UseSetting("Jwt:Audience", "MediDiagnoseClient");
-        builder.UseSetting("Hospital:TimeZone", "UTC");
+        builder.UseSetting("Hospital:TimeZone", HospitalTimeZoneId);
         builder.UseSetting("Directory:BaseUrl", "http://directory.test");
         builder.UseSetting("InternalServices:ApiKey", "appointment-test-internal-key-at-least-32");
         builder.ConfigureTestServices(services =>
@@ -89,9 +90,10 @@ public sealed class TestDirectoryClient : IDirectoryClient
     private readonly ConcurrentDictionary<Guid, DirectoryDoctorSchedule> _schedules = new();
     private readonly ConcurrentDictionary<Guid, Guid> _doctorIdsByUserId = new();
     private readonly ConcurrentDictionary<Guid, bool> _missingPatientProfiles = new();
+    public string HospitalTimeZoneId { get; set; } = "UTC";
 
     public void SetSchedule(Guid doctorId, params DirectoryShift[] shifts) =>
-        _schedules[doctorId] = new DirectoryDoctorSchedule(doctorId, "UTC", shifts);
+        _schedules[doctorId] = new DirectoryDoctorSchedule(doctorId, HospitalTimeZoneId, shifts);
 
     public void LinkDoctor(Guid userId, Guid doctorId) => _doctorIdsByUserId[userId] = doctorId;
 

@@ -37,6 +37,7 @@ public static class AppointmentEndpoints
             ClaimsPrincipal principal,
             CreateAppointmentRequest request,
             RequestAppointment appointments,
+            TimeZoneInfo hospitalTimeZone,
             CancellationToken cancellationToken) =>
         {
             if (AppointmentRequestValidation.Validate(request) is { } validationErrors)
@@ -74,7 +75,7 @@ public static class AppointmentEndpoints
             {
                 AppointmentRequestOutcome.Created => Results.Created(
                     $"/api/appointments/{result.Appointment!.Id}",
-                    ToResponse(result.Appointment)),
+                    ToResponse(result.Appointment, hospitalTimeZone)),
                 AppointmentRequestOutcome.DoctorNotFound => Results.NotFound(),
                 AppointmentRequestOutcome.PatientProfileRequired => Results.Forbid(),
                 _ => Results.Conflict(new { message = "The selected appointment time is no longer available." })
@@ -84,6 +85,7 @@ public static class AppointmentEndpoints
         endpoints.MapGet("/api/appointments/mine", async Task<IResult> (
             ClaimsPrincipal principal,
             AppointmentsDbContext db,
+            TimeZoneInfo hospitalTimeZone,
             CancellationToken cancellationToken) =>
         {
             if (!TryGetSubject(principal, out var patientId))
@@ -95,7 +97,7 @@ public static class AppointmentEndpoints
                 .Where(item => item.PatientId == patientId)
                 .OrderBy(item => item.StartsAtUtc)
                 .ToListAsync(cancellationToken);
-            return Results.Ok(appointments.Select(ToResponse));
+            return Results.Ok(appointments.Select(appointment => ToResponse(appointment, hospitalTimeZone)));
         }).RequireAuthorization("PatientOnly");
 
         var adminAppointments = endpoints.MapGroup("/api/admin/appointments")
@@ -104,6 +106,7 @@ public static class AppointmentEndpoints
             string? status,
             AppointmentsDbContext db,
             IDirectoryClient directory,
+            TimeZoneInfo hospitalTimeZone,
             CancellationToken cancellationToken) =>
         {
             var requestedStatus = status ?? AppointmentStatus.Pending;
@@ -122,7 +125,11 @@ public static class AppointmentEndpoints
             var response = new List<AppointmentWithPatientResponse>(appointments.Count);
             foreach (var appointment in appointments)
             {
-                response.Add(await ToDetailedResponse(appointment, directory, cancellationToken));
+                response.Add(await ToDetailedResponse(
+                    appointment,
+                    directory,
+                    hospitalTimeZone,
+                    cancellationToken));
             }
 
             return Results.Ok(response);
@@ -132,20 +139,35 @@ public static class AppointmentEndpoints
             Guid appointmentId,
             ClaimsPrincipal principal,
             DecideAppointment decisions,
+            TimeZoneInfo hospitalTimeZone,
             CancellationToken cancellationToken) =>
-            await DecideAsync(appointmentId, principal, decisions, approve: true, cancellationToken));
+            await DecideAsync(
+                appointmentId,
+                principal,
+                decisions,
+                hospitalTimeZone,
+                approve: true,
+                cancellationToken));
 
         adminAppointments.MapPost("/{appointmentId:guid}/decline", async Task<IResult> (
             Guid appointmentId,
             ClaimsPrincipal principal,
             DecideAppointment decisions,
+            TimeZoneInfo hospitalTimeZone,
             CancellationToken cancellationToken) =>
-            await DecideAsync(appointmentId, principal, decisions, approve: false, cancellationToken));
+            await DecideAsync(
+                appointmentId,
+                principal,
+                decisions,
+                hospitalTimeZone,
+                approve: false,
+                cancellationToken));
 
         endpoints.MapGet("/api/doctors/me/appointments", async Task<IResult> (
             ClaimsPrincipal principal,
             IDirectoryClient directory,
             AppointmentsDbContext db,
+            TimeZoneInfo hospitalTimeZone,
             CancellationToken cancellationToken) =>
         {
             if (!TryGetSubject(principal, out var doctorUserId))
@@ -166,7 +188,11 @@ public static class AppointmentEndpoints
             var response = new List<AppointmentWithPatientResponse>(appointments.Count);
             foreach (var appointment in appointments)
             {
-                response.Add(await ToDetailedResponse(appointment, directory, cancellationToken));
+                response.Add(await ToDetailedResponse(
+                    appointment,
+                    directory,
+                    hospitalTimeZone,
+                    cancellationToken));
             }
 
             return Results.Ok(response);
@@ -179,6 +205,7 @@ public static class AppointmentEndpoints
         Guid appointmentId,
         ClaimsPrincipal principal,
         DecideAppointment decisions,
+        TimeZoneInfo hospitalTimeZone,
         bool approve,
         CancellationToken cancellationToken)
     {
@@ -190,7 +217,7 @@ public static class AppointmentEndpoints
         var result = await decisions.DecideAsync(appointmentId, adminUserId, approve, cancellationToken);
         return result.Outcome switch
         {
-            AppointmentDecisionOutcome.Decided => Results.Ok(ToResponse(result.Appointment!)),
+            AppointmentDecisionOutcome.Decided => Results.Ok(ToResponse(result.Appointment!, hospitalTimeZone)),
             AppointmentDecisionOutcome.NotFound => Results.NotFound(),
             _ => Results.Conflict(new { message = "Only pending appointments can be decided." })
         };
@@ -199,6 +226,7 @@ public static class AppointmentEndpoints
     private static async Task<AppointmentWithPatientResponse> ToDetailedResponse(
         AppointmentRequest appointment,
         IDirectoryClient directory,
+        TimeZoneInfo hospitalTimeZone,
         CancellationToken cancellationToken)
     {
         var patient = await directory.GetPatientAsync(appointment.PatientId, cancellationToken)
@@ -207,8 +235,8 @@ public static class AppointmentEndpoints
             appointment.Id,
             appointment.DoctorId,
             appointment.PatientId,
-            AsOffset(appointment.StartsAtUtc),
-            AsOffset(appointment.EndsAtUtc),
+            AsOffset(appointment.StartsAtUtc, hospitalTimeZone),
+            AsOffset(appointment.EndsAtUtc, hospitalTimeZone),
             appointment.Shift,
             appointment.Status,
             patient.Name,
@@ -216,21 +244,25 @@ public static class AppointmentEndpoints
             patient.PhoneNumber);
     }
 
-    private static AppointmentResponse ToResponse(AppointmentRequest appointment) =>
+    private static AppointmentResponse ToResponse(
+        AppointmentRequest appointment,
+        TimeZoneInfo hospitalTimeZone) =>
         new(
             appointment.Id,
             appointment.DoctorId,
             appointment.PatientId,
-            AsOffset(appointment.StartsAtUtc),
-            AsOffset(appointment.EndsAtUtc),
+            AsOffset(appointment.StartsAtUtc, hospitalTimeZone),
+            AsOffset(appointment.EndsAtUtc, hospitalTimeZone),
             appointment.Shift,
             appointment.Status);
 
     private static AvailableSlotResponse ToSlotResponse(Domain.AppointmentSlot slot) =>
         new(slot.StartsAt, slot.EndsAt);
 
-    private static DateTimeOffset AsOffset(DateTime utc) =>
-        new(DateTime.SpecifyKind(utc, DateTimeKind.Utc));
+    private static DateTimeOffset AsOffset(DateTime utc, TimeZoneInfo timeZone) =>
+        TimeZoneInfo.ConvertTime(
+            new DateTimeOffset(DateTime.SpecifyKind(utc, DateTimeKind.Utc)),
+            timeZone);
 
     private static bool TryGetSubject(ClaimsPrincipal principal, out Guid userId) =>
         Guid.TryParse(principal.FindFirstValue("sub"), out userId);
